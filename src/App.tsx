@@ -67,7 +67,7 @@ const App = () => {
             }}
             >
               {isLoggedIn ? (
-                  <Stack.Screen name="Main" component={TabNavigator} options={{ headerShown: false }} />
+                  <Stack.Screen name="TabNavigator" component={TabNavigator} options={{ headerShown: false }} />
                 ) : (
                     <Stack.Screen  name="Disclosure of App Permissions" component={DisclosureScreen} />
                 )}

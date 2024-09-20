@@ -22,12 +22,11 @@ const LoginScreen = ({navigation}) => {
                 body: JSON.stringify({ email, password }),
             });
             const data = await response.json();
-            console.log(data);
             if (response.ok) {
                 // Login successful, navigate to the Profile screen
                  await AsyncStorage.setItem('userData', JSON.stringify(data));
                 console.log('Logged in successfully:', data);
-                navigation.navigate('Main');
+                navigation.navigate('TabNavigator');
                 //  Pass user data if needed
             } else {
                 // Handle errors returned by the server
