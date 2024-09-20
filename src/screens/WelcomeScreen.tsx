@@ -1,86 +1,79 @@
+import { StyleSheet, Text, View ,Image, TouchableOpacity, Dimensions} from 'react-native';
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+const { width, height } = Dimensions.get('window');
 
-const WelcomeScreen = () => {
+const WelcomeScreen = ({navigation}) => {
   return (
-    <View>
-        <View style={styles.photoContainer}>
-                <Image
-                  source={{ uri: 'https://images.unsplash.com/photo-1638202993928-7267aad84c31?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' }} // Replace with your photo URL
-                  style={styles.photo}
-                />
-        </View>
+    <>
+    <View style={styles.container}>
+        <Image
+            source={{uri:'https://img.freepik.com/premium-photo/portrait-happy-women-doctor_1030147-9772.jpg?w=740'}} // Update this path to your image
+            style={styles.logo}
+            />
     </View>
-    // <View style={styles.container}>
-    //   
-
-    //   {/* Heading */}
-    //   <Text style={styles.heading}>Find Healthcare Providers</Text>
-
-    //   {/* Content Sections */}
-    //   <View style={styles.contentContainer}>
-    //       <Text style={styles.buttonText}>Book Appointments</Text>
-    //       <Text style={styles.buttonText}>Search for Providers</Text>
-    //       <Text style={styles.buttonText}>View History</Text>
-    //       <Text style={styles.buttonText}>Stay Healthy</Text>
-    //   </View>
-
-    //   {/* Join Button */}
-    //   <TouchableOpacity style={styles.joinButton}>
-    //     <Text style={styles.joinButtonText}>Join</Text>
-    //   </TouchableOpacity>
-    // </View>
+        <View style={styles.container2}>
+            <Text style={styles.headText}>Find Healthcare Providers</Text>
+            <Text style={styles.text}>Search for  doctors,book appointments & view history. Stay healthy! </Text>
+        </View>
+        <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.agreeButton} onPress={()=>navigation.navigate('Login')}>
+                <Text style={styles.joinButtonText}>Login</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.agreeButton} onPress={()=>navigation.navigate('SignUp')}>
+                <Text style={styles.joinButtonText}>SignUp</Text>
+            </TouchableOpacity>
+        </View>
+    </>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#f5f5f5',
-  },
-  photoContainer: {
-    flex: 1,
-    width: '100%',
-  },
-  photo: {
-    width: '100%',
-    height: 500,
-    resizeMode: 'cover',
-  },
-  heading: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginVertical: 20,
-  },
-  contentContainer: {
-    flex: 2,
-    paddingHorizontal: 20,
-  },
-  button: {
-    backgroundColor: '#007bff',
-    paddingVertical: 15,
-    borderRadius: 5,
-    marginVertical: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#000000',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  joinButton: {
-    backgroundColor: '#28a745',
-    paddingVertical: 15,
-    borderRadius: 5,
-    margin: 20,
-    alignItems: 'center',
-  },
-  joinButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-});
-
 export default WelcomeScreen;
+
+const styles = StyleSheet.create({
+    container: {
+        flex:1,
+    },
+    logo: {
+        width: width * 1, // Responsive width
+        height: height * 1, // Responsive height
+        resizeMode: 'cover', // Adjust to fit the image
+    },
+    container2:{
+          backgroundColor: 'rgba(255, 255, 255, 0.3)', // Semi-transparent background for the overlay
+    },
+    headText:{
+        fontSize: 28,
+        fontWeight: 'bold',
+        marginBottom: 20,
+        marginTop: 20,
+        paddingHorizontal:10,
+    },
+    text:{
+        fontSize: 20,
+        fontWeight:'condensedBold',
+        paddingHorizontal:15,
+    },
+    buttonContainer:{
+        flexDirection:'row',
+        backgroundColor: 'rgba(255, 255, 255, 0.3)', // Semi-transparent background for the overlay
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.8,
+        shadowRadius: 2,
+        elevation: 5,
+        justifyContent:'space-around',
+    },
+    agreeButton: {
+        width:'40%',
+        backgroundColor: '#1878F1',
+        paddingVertical: 15,
+        borderRadius: 5,
+        margin: 20,
+        alignItems: 'center',
+    },
+    joinButtonText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+});

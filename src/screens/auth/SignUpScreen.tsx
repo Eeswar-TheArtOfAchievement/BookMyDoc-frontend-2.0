@@ -1,104 +1,256 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image, Dimensions , Alert , Button  } from 'react-native';
+import { RadioButton } from 'react-native-paper';
 
-const SignUpScreen = () => {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+// Get screen width for responsive image
+const { width, height } = Dimensions.get('window');
 
-  const handleRegister = () => {
-    if (username && email && password && confirmPassword) {
-      if (password !== confirmPassword) {
-        Alert.alert('Error', 'Passwords do not match.');
-        return;
+const validateEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+const validateName = (fullName) => {
+  const nameRegex = /^[A-Za-z]+(\s[A-Za-z]+){0,2}?$/;
+  return nameRegex.test(fullName);
+};
+const validatePassword = (password) => {
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[.,@#$]).{8,}$/;
+  return passwordRegex.test(password);  // Minimum 8 characters, at least one letter and one number
+};
+
+const SignUpScreen = ({navigation}) => {
+  const [fullName,setFullName] = useState('');
+  const [password,setPassword] = useState('');
+  const [confirmPassword,SetConfirmPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [email,setEmail] = useState('');
+  const [role, setSelectedRole] = useState('user');
+
+  const handleSignUp = async () => {
+    if (password !== confirmPassword) {
+      setErrorMessage('Passwords do not match');
+      return;
+    }
+     // Name validation
+     if (!validateName(fullName)) {
+      setErrorMessage('Name must be at least 3 letters.');
+      return;
+    }
+
+    // Email validation
+    if (!validateEmail(email)) {
+      setErrorMessage('Invalid email format.');
+      return;
+    }
+
+    // Password validation
+    if (!validatePassword(password)) {
+      setErrorMessage('Password minimum 8 characters long and include both capital, small letters , numbers and 1 symbol like (.#$@)');
+      return;
+    }
+
+    // Success
+    setErrorMessage('');
+    try {
+      const response = await fetch('http://192.168.1.14:5000/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ fullName, email, password , role }),
+      });
+
+      const data = await response.text();
+      if (response.ok) {
+        navigation.navigate('OtpScreen', { email: email , role : role });
+      } else {
+        Alert.alert('Error', data);
       }
-      // Implement your registration logic here
-      Alert.alert('Success', 'You have registered successfully!');
-    } else {
-      Alert.alert('Error', 'Please fill in all fields.');
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'Something went wrong');
     }
   };
 
   return (
+    <>
+    <View>
+      {/* Logo/Image */}
+      <Image
+        source={require('../../assets/asset2.png')}
+        style={styles.logo}
+        />
+    </View>
     <View style={styles.container}>
-      <Text style={styles.heading}>Register</Text>
+      <Text style={styles.title}>Create an Account</Text>
 
+      {/* Input Fields */}
       <TextInput
         style={styles.input}
-        placeholder="Username"
-        value={username}
-        onChangeText={(text) => setUsername(text)}
-        autoCapitalize="none"
-      />
+        onChangeText={setFullName}
+        placeholder="Full Name"
+        placeholderTextColor="#888"
+        />
       <TextInput
         style={styles.input}
         placeholder="Email"
-        value={email}
-        onChangeText={(text) => setEmail(text)}
+        onChangeText={setEmail}
+        placeholderTextColor="#888"
         keyboardType="email-address"
-        autoCapitalize="none"
-      />
+        />
       <TextInput
         style={styles.input}
         placeholder="Password"
-        value={password}
-        onChangeText={(text) => setPassword(text)}
+        onChangeText={setPassword}
+        placeholderTextColor="#888"
         secureTextEntry
-        autoCapitalize="none"
-      />
+        />
       <TextInput
         style={styles.input}
         placeholder="Confirm Password"
-        value={confirmPassword}
-        onChangeText={(text) => setConfirmPassword(text)}
+        onChangeText={SetConfirmPassword}
+        placeholderTextColor="#888"
         secureTextEntry
-        autoCapitalize="none"
-      />
+        />
+        {/* radioButton */}
+        <View style={[styles.containerRadio, styles.row]}>
+            <Text style={styles.titleRadio}>Select your role:</Text>
+            <RadioButton.Group
+                onValueChange={newValue => setSelectedRole(newValue)}
+                value={role}
+            >
+              <View style={styles.row}>
 
-      <TouchableOpacity style={styles.button} onPress={handleRegister}>
-        <Text style={styles.buttonText}>Register</Text>
+                <View style={styles.radioContainer}>
+                    <Text style={styles.footerText1}>User</Text>
+                    <RadioButton value="user" />
+                </View>
+                <View style={styles.radioContainer}>
+                    <Text style={styles.footerText1}>Doctor</Text>
+                    <RadioButton value="doctor" />
+                </View>
+                <View style={styles.radioContainer}>
+                    <Text style={styles.footerText1}>Admin</Text>
+                    <RadioButton value="admin" />
+                </View>
+              </View>
+            </RadioButton.Group>
+        </View>
+
+      {errorMessage ? <Text style={{ color: 'red', marginBottom: 10 }}>{errorMessage}</Text> : null}
+      {/* Signup Button */}
+      <TouchableOpacity style={styles.button} onPress={handleSignUp}>
+        <Text style={styles.buttonText}>Sign Up</Text>
       </TouchableOpacity>
+
+      {/* Already have an account? */}
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>Already have an account?</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+          <Text style={styles.footerLink}>Login</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.footer}>
+        <Text style={styles.footerText1}>By Signing in you agree to our </Text>
+      </View>
+      <View style={styles.footer}>
+        <Text style={styles.links} onPress={()=>navigation.navigate('TermsConditions')}>Terms and conditions</Text>
+        <Text>  &</Text>
+      <Text style={styles.links} onPress={()=>navigation.navigate('PrivacyPolicy')}>Privacy Policy </Text>
+      </View>
     </View>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-    padding: 20,
+  row:{
+    flex:1,
+    flexDirection:'row',
   },
-  heading: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  input: {
-    width: '100%',
-    height: 50,
-    borderColor: '#ddd',
-    borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 15,
-    paddingHorizontal: 10,
-    fontSize: 16,
-  },
+    logo: {
+        height: height * 0.3, // Maintain aspect ratio
+        width: width * 1, // 70% of screen width
+        resizeMode:'cover',
+    },
+    container:{
+        flex:1,
+        paddingHorizontal:10,
+    },
+    title: {
+        textAlign:'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.6)', // Semi-transparent background for the overlay
+        fontSize: 28,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom:20,
+    },
+    input: {
+        width: '100%',
+        padding: 15,
+        marginBottom: 10,
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        borderColor: '#ddd',
+        borderWidth: 1,
+    },
   button: {
-    backgroundColor: '#007bff',
-    paddingVertical: 15,
-    borderRadius: 5,
     width: '100%',
+    padding: 15,
+    backgroundColor: '#007bff', // Bootstrap blue
+    borderRadius: 8,
     alignItems: 'center',
+    marginVertical: 10,
   },
   buttonText: {
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
   },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  footerText: {
+    color: '#555',
+    fontSize: 20,
+  },
+  footerText1:{
+    color: '#555',
+    fontSize: 16,
+  },
+  footerLink: {
+    color: '#007bff', // Bootstrap blue
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginLeft: 5,
+    marginBottom:10,
+  },
+  footer1:{
+    flexGrow:1,
+},
+links:{
+    color:'#1878F1',
+  },
+
+  containerRadio: {
+    maxHeight: 60,
+    borderRadius:10,
+    justifyContent:'space-between',
+    paddingHorizontal: 8,
+    alignItems:'center',
+    backgroundColor: '#fff',
+    flex: 1,
+},
+titleRadio: {
+    fontSize: 20,
+    textAlign: 'center',
+    justifyContent:'center',
+},
+radioContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+},
 });
 
 export default SignUpScreen;
-
