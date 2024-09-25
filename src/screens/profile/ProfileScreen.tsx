@@ -1,32 +1,65 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useState } from 'react';
-import { View, Text, Button, StyleSheet, TextInput, Alert, TouchableOpacity, Modal } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, Button, StyleSheet, TextInput, Alert, TouchableOpacity, Modal, Image  } from 'react-native';
+import { launchImageLibrary } from 'react-native-image-picker';
+import axios from 'axios';
+import { useUser } from '../../utils/UserProvider';
+import { Picker } from '@react-native-picker/picker';
 
 const ProfileScreen = ({navigation}) => {
-    const [userDetails, setUserDetails] = useState({
-        fullName: 'John Doe',
-        email: 'john.doe@example.com',
-        phone: '123-456-7890',
-    });
+    const { userDetails , updateUserDetails } = useUser();
     const [modalVisible, setModalVisible] = useState(false);
     const [tempDetails, setTempDetails] = useState(userDetails);
+    const [image, setImage] = useState(null);
 
+    useEffect(() => {
+        setTempDetails(userDetails);
+    }, [userDetails]);
+
+  const pickImage = async () => {
+    const options = {
+      mediaType: 'photo',
+      includeBase64: true, // If you want to upload base64
+    };
+
+    launchImageLibrary(options, (response) => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else {
+        const selectedImage = response.assets[0];
+        setImage(selectedImage.uri);
+        uploadImage(selectedImage);
+      }
+    });
+  };
+
+  const uploadImage = async (image) => {
+    const formData = new FormData();
+    formData.append('file', {
+      uri: image.uri,
+      name: image.fileName || 'photo.jpg',
+      type: image.type || 'image/jpeg',
+    });
+
+    try {
+      const response = await axios.post('http://192.168.1.14:5000/api/v1/uploads/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      console.log(response.data);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    }
+  };
     const handleUpdateDetails = () => {
-        setUserDetails(tempDetails);
+        updateUserDetails(tempDetails);
         setModalVisible(false);
         Alert.alert('Update Details', 'User details have been updated successfully!');
     };
 
-    // const handleSignOut = () => {
-    //     Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
-    //         { text: 'Cancel', style: 'cancel' },
-    //         { text: 'OK', onPress: () => {
-    //             // Logic to handle sign out
-    //             Alert.alert('Signed Out', 'You have been signed out successfully.');
-    //             navigation.navigate('Login')
-    //         }},
-    //     ]);
-    // };
     const handleSignOut = async () => {
         Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
             { text: 'Cancel', style: 'cancel' },
@@ -34,7 +67,7 @@ const ProfileScreen = ({navigation}) => {
                 onPress: async () => {
                     try {
                         // Clear AsyncStorage
-                        await AsyncStorage.removeItem('userData'); // Adjust key as necessary
+                        await AsyncStorage.removeItem('token'); // Adjust key as necessary
                         Alert.alert('Signed Out', 'You have been signed out successfully.');
                         // Reset the navigation stack and navigate to the login screen
                         navigation.navigate('Login');
@@ -54,12 +87,26 @@ const ProfileScreen = ({navigation}) => {
         <View style={styles.container}>
             <Text style={styles.title}>Profile</Text>
             <View style={styles.card}>
-                <Text style={styles.label}>Full Name:</Text>
-                <Text style={styles.value}>{userDetails.fullName}</Text>
+                <View style={styles.photoContainer}>
+                    <View style={styles.nameContainer}>
+                        <Text style={styles.label}>Full Name:</Text>
+                        <Text style={styles.value}>{userDetails.fullName}</Text>
+                    </View>
+                    <View style={styles.container1}>
+                        {image && <Image source={{ uri: image }} style={styles.image} />}
+                        <Button title="upload image" onPress={pickImage} />
+                    </View>
+                </View>
                 <Text style={styles.label}>Email:</Text>
                 <Text style={styles.value}>{userDetails.email}</Text>
                 <Text style={styles.label}>Phone:</Text>
-                <Text style={styles.value}>{userDetails.phone}</Text>
+                <Text style={styles.value}>{userDetails.phone ? userDetails.phone: "-  -  -  -  -  -"}</Text>
+                <Text style={styles.label}>Gender:</Text>
+                <Text style={styles.value}>{userDetails.gender ? userDetails.gender: "-  -  -  -  -  -"}</Text>
+                <Text style={styles.label}>DateOfBirth:</Text>
+                <Text style={styles.value}>{userDetails.dateOfBirth ? userDetails.dateOfBirth: "-  -  -  -  -  -"}</Text>
+                <Text style={styles.label}>Location:</Text>
+                <Text style={styles.value}>{userDetails.location ? userDetails.location: "-  -  -  -  -  -"}</Text>
             </View>
             <TouchableOpacity style={styles.button} onPress={() => setModalVisible(true)}>
                 <Text style={styles.buttonText}>Update Profile</Text>
@@ -97,8 +144,41 @@ const ProfileScreen = ({navigation}) => {
                             style={styles.modalInput}
                             placeholder="Phone"
                             value={tempDetails.phone}
-                            onChangeText={text => setTempDetails({ ...tempDetails, phone: text })}
+                            onChangeText={text => {
+                            const numericText = text.replace(/[^0-9]/g, '').slice(0, 10); // Remove non-numeric characters
+                            setTempDetails({ ...tempDetails, phone: numericText });}}
+                            keyboardType="numeric"
                         />
+                        <TextInput
+                            style={styles.modalInput}
+                            placeholder="DD/MM/YYYY"
+                            value={tempDetails.dateOfBirth}
+                            onChangeText={text => {
+                                const numericText = text.replace(/[^0-9/]/g, '').slice(0, 10); // Remove non-numeric characters
+                                setTempDetails({ ...tempDetails, dateOfBirth: numericText }); // Update state with the filtered text
+                            }}
+                            keyboardType="numeric"
+                        />
+                        <View style={styles.modalInputContainer}>
+                            <Text style={styles.label}>Gender:</Text>
+                            <Picker
+                                selectedValue={tempDetails.gender}
+                                style={styles.picker}
+                                onValueChange={(itemValue) => setTempDetails({ ...tempDetails, gender: itemValue })}
+                            >
+                                <Picker.Item label="Male" value="male" />
+                                <Picker.Item label="Female" value="female" />
+                                <Picker.Item label="LGBT" value="lgbt" />
+                                <Picker.Item label="Rather not say" value="not_say" />
+                            </Picker>
+                        </View>
+                        <TextInput
+                            style={styles.modalInput}
+                            placeholder="Location"
+                            value={tempDetails.location}
+                            onChangeText={text => setTempDetails({ ...tempDetails, location: text })}
+                        />
+                        
                         <View style={styles.modalButtonContainer}>
                             <Button title="Save" onPress={handleUpdateDetails} />
                             <Button title="Cancel" color="#F44336" onPress={() => setModalVisible(false)} />
@@ -111,10 +191,46 @@ const ProfileScreen = ({navigation}) => {
 };
 
 const styles = StyleSheet.create({
+    modalInputContainer: {
+        marginBottom: 15,
+    },
+    picker: {
+        height: 50,
+        width: '100%',
+        borderColor: '#ddd',
+        borderWidth: 1,
+        borderRadius: 5,
+        backgroundColor: '#f9f9f9',
+    },
     container: {
         flex: 1,
         padding: 20,
         backgroundColor: '#F7F9FC',
+    },
+    container1: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      image: {
+        width: 100,
+        height: 100,
+        marginTop: 20,
+        borderRadius:20,
+      },
+    nameContainer:{
+        flex: 1,
+    },
+    photoContainer:{
+        flexDirection:'row',
+        alignItems: 'center',
+        justifyContent: 'space-evenly',
+    },
+    profileImage: {
+        width: 50, // Set the desired width
+        height: 50, // Set the desired height
+        borderRadius: 25, // To make it circular
+        marginLeft: 10, // Add some spacing
     },
     title: {
         fontSize: 28,

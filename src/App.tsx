@@ -11,6 +11,7 @@ import DisclosureScreen from './screens/DisclosureScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import TabNavigator from './navigation/TabNavigator';
+import { UserProvider } from './utils/UserProvider';
 
 const Stack = createStackNavigator();
 
@@ -22,7 +23,6 @@ const App = () => {
       const checkLoginStatus = async () => {
         try {
           const userData = await AsyncStorage.getItem('token');
-          console.log("object", userData);
           setIsLoggedIn(userData ? true : false);
         } catch (error) {
           console.error('Failed to check login status:', error);
@@ -37,20 +37,21 @@ const App = () => {
     }
 
     return (
+    <UserProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
       <NavigationContainer>
           {isLoggedIn ? (
-              <TabNavigator />
+            <TabNavigator />
           ) : (
               <Stack.Navigator
                   screenOptions={{
-                      headerStyle: { backgroundColor: '#1878F1' },
+                    headerStyle: { backgroundColor: '#1878F1' },
                       headerTintColor: '#fff',
                       headerTitleStyle: {
-                          fontWeight: '400',
+                        fontWeight: '400',
                       },
-                  }}
-              >
+                    }}
+                    >
                   <Stack.Screen name="Disclosure of App Permissions" component={DisclosureScreen} />
                   <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false }} />
                   <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
@@ -62,7 +63,8 @@ const App = () => {
               </Stack.Navigator>
           )}
       </NavigationContainer>
-  </GestureHandlerRootView>
+     </GestureHandlerRootView>
+    </UserProvider>
     );
 };
 

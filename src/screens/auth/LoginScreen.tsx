@@ -8,9 +8,6 @@ const LoginScreen = ({navigation}) => {
   const [email, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  // const navigation = useNavigation();
-
-
   const handleLogin = async () => {
     if (email && password) {
         try {
