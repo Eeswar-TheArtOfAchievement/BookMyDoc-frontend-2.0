@@ -10,7 +10,7 @@ const ProfileScreen = ({navigation}) => {
     const { userDetails , updateUserDetails } = useUser();
     const [modalVisible, setModalVisible] = useState(false);
     const [tempDetails, setTempDetails] = useState(userDetails);
-    const [image, setImage] = useState(null);
+    const [image, setImage] = useState( null);
 
     useEffect(() => {
         setTempDetails(userDetails);
@@ -30,24 +30,18 @@ const ProfileScreen = ({navigation}) => {
       } else {
         const selectedImage = response.assets[0];
         setImage(selectedImage.uri);
-        uploadImage(selectedImage);
+        const base64Image = selectedImage.base64;
+        uploadImage(base64Image);
       }
     });
   };
 
-  const uploadImage = async (image) => {
-    const formData = new FormData();
-    formData.append('file', {
-      uri: image.uri,
-      name: image.fileName || 'photo.jpg',
-      type: image.type || 'image/jpeg',
-    });
+  const uploadImage = async (base664Image) => {
+    const userId = userDetails.id;
 
     try {
-      const response = await axios.post('http://192.168.1.14:5000/api/v1/uploads/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+      const response = await axios.post('http://192.168.1.14:5000/api/v1/auth/image', {
+        userId, image :base664Image,
       });
       console.log(response.data);
     } catch (error) {
