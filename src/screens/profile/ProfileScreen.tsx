@@ -37,10 +37,11 @@ const ProfileScreen = ({navigation}) => {
                         await AsyncStorage.removeItem('userData'); // Adjust key as necessary
                         Alert.alert('Signed Out', 'You have been signed out successfully.');
                         // Reset the navigation stack and navigate to the login screen
-                        navigation.reset({
-                            index: 0,
-                            routes: [{ name: 'Login' }],
-                        });
+                        navigation.navigate('Login');
+                        // navigation.reset({
+                        //     index: 0,
+                        //     routes: [{ name: 'Login' }],
+                        // });
                     } catch (error) {
                         console.error('Error clearing AsyncStorage:', error);
                     }

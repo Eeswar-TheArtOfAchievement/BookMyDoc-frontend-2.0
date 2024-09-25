@@ -52,7 +52,7 @@ const SignUpScreen = ({navigation}) => {
     // Success
     setErrorMessage('');
     try {
-      const response = await fetch('http://192.168.1.14:5000/api/auth/register', {
+      const response = await fetch('http://192.168.1.14:5000/api/v1/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -62,7 +62,7 @@ const SignUpScreen = ({navigation}) => {
 
       const data = await response.text();
       if (response.ok) {
-        navigation.navigate('OtpScreen', { email: email , role : role });
+        navigation.navigate('OtpScreen', { email: email , role : role , password: password, fullName :fullName});
       } else {
         Alert.alert('Error', data);
       }

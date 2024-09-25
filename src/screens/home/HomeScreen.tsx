@@ -1,6 +1,6 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Alert } from 'react-native';
 const HomeScreen = ({ navigation }) => {
     const doctors = [
         { name: 'Dr. John Doe', specialty: 'Cardiologist' },
@@ -9,6 +9,45 @@ const HomeScreen = ({ navigation }) => {
         { name: 'Dr. Michael Brown', specialty: 'Orthopedic' },
     ];
 
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                // Retrieve the token from AsyncStorage
+                const token = await AsyncStorage.getItem('token');
+                console.log(token);
+                if (token) {
+                    // Fetch user details using the token
+
+                    const userResponse = await fetch('http://192.168.1.14:5000/api/v1/auth/user', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                    });
+                    console.log('Response Status:', userResponse.status);
+
+                    const userData = await userResponse.json();
+                    console.log(userData);
+                        if (userResponse.ok) {
+                            if (userData && userData.fullName && userData.email) {
+                                Alert.alert('Welcome', `Welcome, ${userData.fullName}!\nEmail: ${userData.email}`);
+                            } else {
+                                Alert.alert('Error', 'User data is incomplete or not available.');
+                            }
+                        } else {
+                            Alert.alert('Error', 'Failed to fetch user details.');
+                        }
+                } else {
+                    Alert.alert('Error', 'No token found. Please log in again.');
+                }
+            } catch (error) {
+                console.error('Failed to fetch user data:', error);
+                Alert.alert('Error', 'An error occurred while fetching user data.');
+            }
+        };
+        fetchUserData();
+    }, []);
     return (
         <View style={styles.container}>
             <Image

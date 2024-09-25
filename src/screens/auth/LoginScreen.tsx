@@ -14,7 +14,7 @@ const LoginScreen = ({navigation}) => {
   const handleLogin = async () => {
     if (email && password) {
         try {
-            const response = await fetch('http://192.168.1.14:5000/api/auth/login', {
+            const response = await fetch('http://192.168.1.14:5000/api/v1/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -23,18 +23,17 @@ const LoginScreen = ({navigation}) => {
             });
             const data = await response.json();
             if (response.ok) {
-                // Login successful, navigate to the Profile screen
-                 await AsyncStorage.setItem('userData', JSON.stringify(data));
-                console.log('Logged in successfully:', data);
-                navigation.navigate('TabNavigator');
-                //  Pass user data if needed
-            } else {
-                // Handle errors returned by the server
-                Alert.alert('Error', data.error || 'Login failed');
-            }
+              const {token} = data;
+              // Store only the token clg
+              await AsyncStorage.setItem('token',token);
+              // Navigate to the Home screen
+              navigation.replace('TabNavigator');
+          } else {
+              Alert.alert('Error', data.message || 'Login failed');
+          }
         } catch (error) {
             console.error('Login error:', error);
-            Alert.alert('Error', 'Something went wrong in login');
+            Alert.alert('Error', 'Something went wrong in login route');
         }
     } else {
         Alert.alert('Error', 'Please enter both email and password.');

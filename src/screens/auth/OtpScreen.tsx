@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 
 const OtpScreen = ({ route, navigation }) => {
-    const { email , role } = route.params; // Get the email passed from SignUpScreen
+    const { email ,password, fullName, role } = route.params; // Get the email passed from SignUpScreen
     const [otp, setOtp] = useState('');
     const handleVerifyOtp = async () => {
         if (!otp) {
@@ -11,24 +11,21 @@ const OtpScreen = ({ route, navigation }) => {
         }
         // Call your API to verify the OTP
         try {
-            const response = await fetch('http://192.168.1.14:5000/api/auth/verify-otp', {
+            const response = await fetch('http://192.168.1.14:5000/api/v1/auth/verify-otp', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ email, otp }),
+                body: JSON.stringify({ email,password, fullName , role , otp }),
             });
-
             const data = await response.json();
             if (response.ok) {
                 Alert.alert('Success', 'OTP verified successfully!');
-                // Navigate to the login or main screen
                 navigation.navigate('Login');
             } else {
-                console.log("tuss");
-                // Alert.alert('Error', data.message || 'OTP verification failed');
-                Alert.alert( 'OTP verification failed');
+                Alert.alert( 'OTP verification failed', data);
             }
+
         } catch (error) {
             console.error(error);
             Alert.alert('Error', 'Something1 went wrong');
