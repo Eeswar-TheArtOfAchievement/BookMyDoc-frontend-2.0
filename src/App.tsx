@@ -11,7 +11,7 @@ import DisclosureScreen from './screens/DisclosureScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import TabNavigator from './navigation/TabNavigator';
-import { UserProvider } from './utils/UserProvider';
+import { UserProvider } from './contexts/UserProvider';
 
 const Stack = createStackNavigator();
 

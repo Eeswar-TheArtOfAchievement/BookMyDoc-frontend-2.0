@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Alert } from 'react-native';
-import { useUser } from '../../utils/UserProvider';
+import { useUser } from '../../contexts/UserProvider';
 const HomeScreen = ({ navigation }) => {
     const doctors = [
         { name: 'Dr. John Doe', specialty: 'Cardiologist' },
@@ -9,7 +9,9 @@ const HomeScreen = ({ navigation }) => {
         { name: 'Dr. Emily Johnson', specialty: 'Pediatrician' },
         { name: 'Dr. Michael Brown', specialty: 'Orthopedic' },
     ];
-    const { updateUserDetails } = useUser();
+    const {userDetails, updateUserDetails } = useUser();
+    const [formattedDateOfBirth, setFormattedDateOfBirth] = useState(''); // State to hold formatted date
+
     useEffect(() => {
         const fetchUserData = async () => {
             try {
@@ -25,10 +27,23 @@ const HomeScreen = ({ navigation }) => {
                         },
                     });
                     const userData = await userResponse.json();
+
                         if (userResponse.ok) {
-                            // Update the user details in context
-                            updateUserDetails(userData);
-                            if (userData && userData.fullName && userData.email) {
+                        // Decode and format the dateOfBirth
+                        const dateOfBirth = new Date(userData.dateOfBirth); // Convert to Date object
+                        const formattedDate = dateOfBirth.toLocaleDateString(); // Format the date
+
+                        const tempDetails = {
+                            ...userData,
+                            dateOfBirth: formattedDate, // Store formatted date as string
+                        };
+
+                        // Update the user details in context
+                        updateUserDetails(tempDetails);
+
+                        // Set the formatted date for rendering
+                        setFormattedDateOfBirth(formattedDate);
+                            if (tempDetails && userData.fullName && userData.email) {
                                 Alert.alert('Welcome', `Welcome, ${userData.fullName}!`);
                             } else {
                                 Alert.alert('Error', 'User data is incomplete or not available.');
@@ -36,6 +51,8 @@ const HomeScreen = ({ navigation }) => {
                         } else {
                             Alert.alert('Error', 'Failed to fetch user details.');
                         }
+                        console.log('userData' , userData);
+                        console.log('uerDetails' , userDetails);
                 } else {
                     Alert.alert('Error', 'No token found. Please log in again.');
                 }

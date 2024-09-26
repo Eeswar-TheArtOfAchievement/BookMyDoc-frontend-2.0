@@ -3,8 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet, TextInput, Alert, TouchableOpacity, Modal, Image  } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import axios from 'axios';
-import { useUser } from '../../utils/UserProvider';
+import { useUser } from '../../contexts/UserProvider';
 import { Picker } from '@react-native-picker/picker';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const ProfileScreen = ({navigation}) => {
     const { userDetails , updateUserDetails } = useUser();
@@ -43,16 +44,31 @@ const ProfileScreen = ({navigation}) => {
       const response = await axios.post('http://192.168.1.14:5000/api/v1/auth/image', {
         userId, image :base664Image,
       });
-      console.log(response.data);
     } catch (error) {
       console.error('Error uploading image:', error);
     }
   };
-    const handleUpdateDetails = () => {
+  const handleUpdateDetails = async () => {
+    try {
+
+        const formattedDate = new Date(tempDetails.dateOfBirth.split('/').reverse().join('-'));
+        const response = await axios.patch('http://192.168.1.14:5000/api/v1/auth/update', {
+            ...tempDetails, // Only the fields you want to update
+            dateOfBirth: formattedDate.toISOString(),
+            userId: userDetails.id,
+        });
+        // If successful, update the context and show a success message
         updateUserDetails(tempDetails);
         setModalVisible(false);
-        Alert.alert('Update Details', 'User details have been updated successfully!');
-    };
+        console.log(tempDetails);
+
+        Alert.alert('Successful ', 'User details have been updated successfully in both');
+    } catch (error) {
+        console.error('Error updating user details:', error);
+        Alert.alert('Update Failed', 'An error occurred while updating user details.');
+    }
+};
+console.log(userDetails);
 
     const handleSignOut = async () => {
         Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
@@ -64,11 +80,10 @@ const ProfileScreen = ({navigation}) => {
                         await AsyncStorage.removeItem('token'); // Adjust key as necessary
                         Alert.alert('Signed Out', 'You have been signed out successfully.');
                         // Reset the navigation stack and navigate to the login screen
-                        navigation.navigate('Login');
-                        // navigation.reset({
-                        //     index: 0,
-                        //     routes: [{ name: 'Login' }],
-                        // });
+                        navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'Login' }],
+                        });
                     } catch (error) {
                         console.error('Error clearing AsyncStorage:', error);
                     }
@@ -87,7 +102,18 @@ const ProfileScreen = ({navigation}) => {
                         <Text style={styles.value}>{userDetails.fullName}</Text>
                     </View>
                     <View style={styles.container1}>
-                        {image && <Image source={{ uri: image }} style={styles.image} />}
+                    {userDetails.profileImage ? (
+                        <Image
+                                source={{ uri: `data:image/jpeg;base64,${userDetails.profileImage}` }} 
+                                style={styles.image} // Adjust size as needed 
+                            />
+                        ) : (
+                            <Icon
+                                name="user-circle" // You can change the icon name 
+                                size={100} // Adjust the size of the icon 
+                                color="#ccc" // Change color as needed 
+                            />
+                        )}
                         <Button title="upload image" onPress={pickImage} />
                     </View>
                 </View>
@@ -145,7 +171,7 @@ const ProfileScreen = ({navigation}) => {
                         />
                         <TextInput
                             style={styles.modalInput}
-                            placeholder="DD/MM/YYYY"
+                            placeholder="MM/DD/YYYY"
                             value={tempDetails.dateOfBirth}
                             onChangeText={text => {
                                 const numericText = text.replace(/[^0-9/]/g, '').slice(0, 10); // Remove non-numeric characters
@@ -209,8 +235,7 @@ const styles = StyleSheet.create({
       image: {
         width: 100,
         height: 100,
-        marginTop: 20,
-        borderRadius:20,
+        borderRadius:50,
       },
     nameContainer:{
         flex: 1,
