@@ -6,13 +6,11 @@ import axios from 'axios';
 import { useUser } from '../../contexts/UserProvider';
 import { Picker } from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/FontAwesome';
-
 const ProfileScreen = ({navigation}) => {
     const { userDetails , updateUserDetails } = useUser();
     const [modalVisible, setModalVisible] = useState(false);
     const [tempDetails, setTempDetails] = useState(userDetails);
     const [image, setImage] = useState( null);
-
     useEffect(() => {
         setTempDetails(userDetails);
     }, [userDetails]);
@@ -52,15 +50,20 @@ const ProfileScreen = ({navigation}) => {
     try {
 
         const formattedDate = new Date(tempDetails.dateOfBirth.split('/').reverse().join('-'));
-        const response = await axios.patch('http://192.168.1.14:5000/api/v1/auth/update', {
-            ...tempDetails, // Only the fields you want to update
+        const token = await AsyncStorage.getItem('token');
+
+        const response = await axios.patch(`http://192.168.1.14:5000/api/v1/auth/update/${userDetails.id}`, {
+            ...tempDetails,
             dateOfBirth: formattedDate.toISOString(),
-            userId: userDetails.id,
+        }, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
         });
         // If successful, update the context and show a success message
         updateUserDetails(tempDetails);
         setModalVisible(false);
-        console.log(tempDetails);
 
         Alert.alert('Successful ', 'User details have been updated successfully in both');
     } catch (error) {
@@ -68,7 +71,6 @@ const ProfileScreen = ({navigation}) => {
         Alert.alert('Update Failed', 'An error occurred while updating user details.');
     }
 };
-console.log(userDetails);
 
     const handleSignOut = async () => {
         Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
@@ -104,14 +106,14 @@ console.log(userDetails);
                     <View style={styles.container1}>
                     {userDetails.profileImage ? (
                         <Image
-                                source={{ uri: `data:image/jpeg;base64,${userDetails.profileImage}` }} 
-                                style={styles.image} // Adjust size as needed 
+                                source={{ uri: `data:image/jpeg;base64,${userDetails.profileImage}` }}
+                                style={styles.image} // Adjust size as needed
                             />
                         ) : (
                             <Icon
-                                name="user-circle" // You can change the icon name 
-                                size={100} // Adjust the size of the icon 
-                                color="#ccc" // Change color as needed 
+                                name="user-circle" // You can change the icon name
+                                size={100} // Adjust the size of the icon
+                                color="#ccc" // Change color as needed
                             />
                         )}
                         <Button title="upload image" onPress={pickImage} />
@@ -120,13 +122,13 @@ console.log(userDetails);
                 <Text style={styles.label}>Email:</Text>
                 <Text style={styles.value}>{userDetails.email}</Text>
                 <Text style={styles.label}>Phone:</Text>
-                <Text style={styles.value}>{userDetails.phone ? userDetails.phone: "-  -  -  -  -  -"}</Text>
+                <Text style={styles.value}>{userDetails.phone ? userDetails.phone : '-  -  -  -  -  -'}</Text>
                 <Text style={styles.label}>Gender:</Text>
-                <Text style={styles.value}>{userDetails.gender ? userDetails.gender: "-  -  -  -  -  -"}</Text>
+                <Text style={styles.value}>{userDetails.gender ? userDetails.gender : '-  -  -  -  -  -'}</Text>
                 <Text style={styles.label}>DateOfBirth:</Text>
-                <Text style={styles.value}>{userDetails.dateOfBirth ? userDetails.dateOfBirth: "-  -  -  -  -  -"}</Text>
+                <Text style={styles.value}>{userDetails.dateOfBirth ? userDetails.dateOfBirth : '-  -  -  -  -  -'}</Text>
                 <Text style={styles.label}>Location:</Text>
-                <Text style={styles.value}>{userDetails.location ? userDetails.location: "-  -  -  -  -  -"}</Text>
+                <Text style={styles.value}>{userDetails.location ? userDetails.location : '-  -  -  -  -  -'}</Text>
             </View>
             <TouchableOpacity style={styles.button} onPress={() => setModalVisible(true)}>
                 <Text style={styles.buttonText}>Update Profile</Text>
@@ -134,7 +136,7 @@ console.log(userDetails);
             <TouchableOpacity style={styles.button} onPress={handleSignOut}>
                 <Text style={styles.buttonText}>Sign Out</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.link} onPress={() => Alert.alert('View Appointments', 'Navigating to appointment history...')}>
+            <TouchableOpacity style={styles.link} onPress={() => navigation.navigate('MyAppointments')}>
                 <Text style={styles.linkText}>View Appointment History</Text>
             </TouchableOpacity>
 
@@ -198,7 +200,7 @@ console.log(userDetails);
                             value={tempDetails.location}
                             onChangeText={text => setTempDetails({ ...tempDetails, location: text })}
                         />
-                        
+
                         <View style={styles.modalButtonContainer}>
                             <Button title="Save" onPress={handleUpdateDetails} />
                             <Button title="Cancel" color="#F44336" onPress={() => setModalVisible(false)} />

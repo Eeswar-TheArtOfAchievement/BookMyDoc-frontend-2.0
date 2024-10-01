@@ -45,6 +45,12 @@ const OtpScreen = ({ route, navigation }) => {
             <TouchableOpacity style={styles.button} onPress={handleVerifyOtp}>
                 <Text style={styles.buttonText}>Verify OTP</Text>
             </TouchableOpacity>
+            <Text style={styles.resendText}>
+        Didn't receive code?{' '}
+        <Text style={styles.resendLink} >
+          Resend
+        </Text>
+      </Text>
         </View>
     );
 };
@@ -79,6 +85,14 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 18,
     },
+    resendText: {
+        marginTop: 20,
+        color: '#888',
+      },
+      resendLink: {
+        color: '#007BFF',
+        fontWeight: 'bold',
+      },
 });
 
 export default OtpScreen;

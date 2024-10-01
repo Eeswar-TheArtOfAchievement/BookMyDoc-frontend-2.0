@@ -11,7 +11,6 @@ const HomeScreen = ({ navigation }) => {
     ];
     const {userDetails, updateUserDetails } = useUser();
     const [formattedDateOfBirth, setFormattedDateOfBirth] = useState(''); // State to hold formatted date
-
     useEffect(() => {
         const fetchUserData = async () => {
             try {
@@ -51,8 +50,6 @@ const HomeScreen = ({ navigation }) => {
                         } else {
                             Alert.alert('Error', 'Failed to fetch user details.');
                         }
-                        console.log('userData' , userData);
-                        console.log('uerDetails' , userDetails);
                 } else {
                     Alert.alert('Error', 'No token found. Please log in again.');
                 }
@@ -66,7 +63,7 @@ const HomeScreen = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <Image
-                source={require('../../assets/asset1.png')} // Use a relevant image
+                source={require('../../assets/asset2.png')} // Use a relevant image
                 style={styles.banner}
                 resizeMode="cover"
             />
@@ -76,6 +73,11 @@ const HomeScreen = ({ navigation }) => {
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.doctorList}>
                 {doctors.map((doctor, index) => (
                     <View key={index} style={styles.doctorCard}>
+                        <Image 
+        source={{ uri: 'https://picsum.photos/200/300 ' }} 
+        style={styles.image} 
+        resizeMode="cover" // or "contain", "stretch", etc.
+      />
                         <Text style={styles.doctorName}>{doctor.name}</Text>
                         <Text style={styles.doctorSpecialty}>{doctor.specialty}</Text>
                         <TouchableOpacity
@@ -157,6 +159,10 @@ const styles = StyleSheet.create({
     appointmentButtonText: {
         color: '#fff',
         fontSize: 16,
+    },
+    image :{
+        width: 100,
+        height: 200,
     },
 });
 
