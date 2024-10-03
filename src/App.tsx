@@ -12,17 +12,22 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import TabNavigator from './navigation/TabNavigator';
 import { UserProvider } from './contexts/UserProvider';
+import DoctorDrawerNav from './navigation/DoctorDrawerNav';
+import AdminDrawerNav from './navigation/AdminDrawerNav';
 
 const Stack = createStackNavigator();
 
 // Define the Main Stack Navigator
 const App = () => {
     const [isLoggedIn, setIsLoggedIn] = React.useState(null);
-
+    const [role, setRole] = React.useState(null);
+  
     useEffect(() => {
       const checkLoginStatus = async () => {
         try {
           const userData = await AsyncStorage.getItem('token');
+          const role = await AsyncStorage.getItem('role');
+          setRole(role);
           setIsLoggedIn(userData ? true : false);
         } catch (error) {
           console.error('Failed to check login status:', error);
@@ -41,7 +46,13 @@ const App = () => {
       <GestureHandlerRootView style={{ flex: 1 }}>
       <NavigationContainer>
           {isLoggedIn ? (
-            <TabNavigator />
+            role === 'admin' ? (
+              <AdminDrawerNav /> // Render Admin navigation
+            ) : role === 'doctor' ? (
+              <DoctorDrawerNav /> // Render Doctor-specific navigation
+            ) : (
+              <TabNavigator /> // Render general navigation for other roles
+            )
           ) : (
               <Stack.Navigator
                   screenOptions={{
@@ -60,6 +71,8 @@ const App = () => {
                   <Stack.Screen name="TermsConditions" component={TermsConditions} />
                   <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
                   <Stack.Screen name="TabNavigator" component={TabNavigator} options={{ headerShown: false }} />
+                  {/* <Stack.Screen name="DoctorDrawerNav" component={DoctorDrawerNav} options={{ headerShown: false }} /> */}
+                  <Stack.Screen name="AdminDrawerNav" component={AdminDrawerNav} options={{ headerShown: false }} />
               </Stack.Navigator>
           )}
       </NavigationContainer>

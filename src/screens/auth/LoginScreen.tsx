@@ -20,11 +20,18 @@ const LoginScreen = ({navigation}) => {
             });
             const data = await response.json();
             if (response.ok) {
-              const {token} = data;
+              const {token ,role} = data;
+              console.log(role);
               // Store only the token clg
               await AsyncStorage.setItem('token',token);
-              // Navigate to the Home screen
-              navigation.replace('TabNavigator');
+              await AsyncStorage.setItem('role',role);
+              if (role === 'doctor') {
+                navigation.replace('DoctorDrawerNav'); // Navigate to Doctor Drawer
+            } else if (role === 'admin') {
+                navigation.replace('AdminDrawerNav'); // Navigate to Admin Drawer
+            } else {
+                navigation.replace('TabNavigator'); // Navigate to User Tab (default case)
+            }
           } else {
               Alert.alert('Error', data.message || 'Login failed');
           }
