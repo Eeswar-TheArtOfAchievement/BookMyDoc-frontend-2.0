@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, FlatList, StyleSheet, Alert, TextInput, ScrollView } from 'react-native';
 import axios from 'axios';
+import { useAdmin } from '../../contexts/UserProvider';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Sample data types
 interface Doctor {
@@ -59,16 +61,67 @@ const [newPatient, setNewPatient] = useState(
     insuranceId: '',
   }
 );
+const { adminDetails , updateAdminDetails } = useAdmin();
 
 const [specializations, setSpecializations] = useState([]);
   const [newPatientEmail, setNewPatientEmail] = useState('');
   const [newAppointment, setNewAppointment] = useState<{ patientId: string; doctorId: string; date: string; time: string }>({ patientId: '', doctorId: '', date: '', time: '' });
+  const [formattedDateOfBirth, setFormattedDateOfBirth] = useState(''); // State to hold formatted date
 
   useEffect(() => {
     fetchDoctors();
     fetchPatients();
     fetchAppointments();
   }, []);
+  useEffect(() => {
+    const fetchAdminData = async () => {
+        try {
+            // Retrieve the token from AsyncStorage
+            const token = await AsyncStorage.getItem('token');
+            if (token) {
+                // Fetch user details using the token
+                const adminResponse = await fetch('http://192.168.1.14:5000/api/v1/admin/admin1', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+                const adminData = await adminResponse.json();
+
+                    if (adminResponse.ok) {
+                    // Decode and format the dateOfBirth
+                    const dateOfBirth = new Date(adminData.dateOfBirth); // Convert to Date object
+                    const formattedDate = dateOfBirth.toLocaleDateString(); // Format the date
+
+                    const tempDetails = {
+                        ...adminData,
+                        dateOfBirth: formattedDate, // Store formatted date as string
+                    };
+
+                    // Update the user details in context
+                    updateAdminDetails(tempDetails);
+
+                    // Set the formatted date for rendering
+                    setFormattedDateOfBirth(formattedDate);
+                        if (tempDetails && adminData.fullName && adminData.email) {
+                            Alert.alert('Welcome', `Welcome, ${adminData.fullName}!`);
+                        } else {
+                            Alert.alert('Error', 'User data is incomplete or not available.');
+                        }
+                    } else {
+                        Alert.alert('Error', 'Failed to fetch admin details.');
+                    }
+            } else {
+                Alert.alert('Error', 'No token found. Please log in again.');
+            }
+        } catch (error) {
+            console.error('Failed to fetch admin data:', error);
+            Alert.alert('Error', 'An error occurred while fetching admin data.');
+        }
+    };
+    fetchAdminData();
+}, []);
 
   const fetchDoctors = async () => {
     try {
@@ -123,6 +176,9 @@ const [specializations, setSpecializations] = useState([]);
         }},
     ]);
   };
+const handleEditDoctor = (id: string) => {
+  Alert.alert('EditDoctor', `coming soon`)
+};
 
   const handleAddPatient = async () => {
     try {
@@ -140,7 +196,7 @@ const [specializations, setSpecializations] = useState([]);
       { text: 'Cancel' },
       { text: 'OK', onPress: async () => {
           try {
-            await axios.delete(`http://192.168.1.14:5000/api/v1/patients/${id}`);
+            await axios.delete(`http://192.168.1.14:5000/api/v1/auth/user/${id}`);
             setPatients(patients.filter(patient => patient._id !== id));
           } catch (error) {
             console.error('Error deleting patient:', error);
@@ -165,7 +221,7 @@ const [specializations, setSpecializations] = useState([]);
       { text: 'Cancel' },
       { text: 'OK', onPress: async () => {
           try {
-            await axios.delete(`http://192.168.1.14:5000/api/v1/appointments/${id}`);
+            await axios.delete(`http://192.168.1.14:5000/api/v1/auth/user/${id}`);
             setAppointments(appointments.filter(appointment => appointment._id !== id));
           } catch (error) {
             console.error('Error deleting appointment:', error);
@@ -179,8 +235,7 @@ const [specializations, setSpecializations] = useState([]);
       <Text style={styles.title}>Admin Dashboard</Text>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Manage Doctors</Text>
-        <Text style={styles.header}>Add Doctor</Text>
+        <Text style={styles.sectionTitle}>1. Manage Doctors</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Email"
@@ -229,7 +284,7 @@ const [specializations, setSpecializations] = useState([]);
             {/* Add other fields for gender, locationId, specializations, certifications, availabilityId */}
 
             <Button title="Add Doctor" onPress={handleAddDoctor} />
-            
+
             {/* Display the list of doctors and patients as before */}
             <Text style={styles.header}>Doctors List</Text>
         <FlatList
@@ -238,14 +293,18 @@ const [specializations, setSpecializations] = useState([]);
           renderItem={({ item }) => (
             <View style={styles.item}>
               <Text>{item.fullName} ({item.specializations[0]?.specializationName || 'No Specialty'})</Text>
+              <View style={styles.container1}>
+
+              <Button title="Edit" onPress={() => handleEditDoctor(item._id)} />
               <Button title="Delete" onPress={() => handleDeleteDoctor(item._id)} />
+              </View>
             </View>
           )}
         />
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Manage Patients</Text>
+        <Text style={styles.sectionTitle}>2. Manage Patients</Text>
         <TextInput
                 style={styles.input}
                 placeholder="Email"
@@ -278,20 +337,25 @@ const [specializations, setSpecializations] = useState([]);
                 onChangeText={(text) => setNewPatient({ ...newPatient, phone: text })}
             />
         <Button title="Add Patient" onPress={handleAddPatient} />
+        <Text style={styles.header}>Patients List</Text>
+
         <FlatList
           data={patients}
           keyExtractor={item => item._id}
           renderItem={({ item }) => (
             <View style={styles.item}>
               <Text>{item.fullName} ({item.email})</Text>
-              <Button title="Delete" onPress={() => handleDeletePatient(item._id)} />
+              <View style={styles.container1}>
+                <Button title="Edit" onPress={() => handleDeletePatient(item._id)} />
+                <Button title="Delete" onPress={() => handleDeletePatient(item._id)} />
+              </View>
             </View>
           )}
         />
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Manage Appointments</Text>
+        <Text style={styles.sectionTitle}>3. Manage Appointments</Text>
         <TextInput
           placeholder="Patient ID"
           value={newAppointment.patientId}
@@ -317,13 +381,18 @@ const [specializations, setSpecializations] = useState([]);
           style={styles.input}
         />
         <Button title="Add Appointment" onPress={handleAddAppointment} />
+        <Text style={styles.header}>Appointments List</Text>
+
         <FlatList
           data={appointments}
           keyExtractor={item => item._id}
           renderItem={({ item }) => (
             <View style={styles.item}>
               <Text>Patient ID: {item.patientId}, Doctor ID: {item.doctorId}, Date: {item.date}, Time: {item.time}</Text>
+              <View style={styles.container1}>
+              <Button title="Edit" onPress={() => handleDeleteAppointment(item._id)} />
               <Button title="Delete" onPress={() => handleDeleteAppointment(item._id)} />
+              </View>
             </View>
           )}
         />
@@ -338,7 +407,13 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#fff',
   },
+  container1: {
+    flexDirection:'row',
+    gap: 1,
+
+  },
   title: {
+    textAlign:'center',
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 16,
@@ -347,7 +422,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   header: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
 },

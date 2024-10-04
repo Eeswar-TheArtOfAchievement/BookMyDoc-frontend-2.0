@@ -21,7 +21,6 @@ const LoginScreen = ({navigation}) => {
             const data = await response.json();
             if (response.ok) {
               const {token ,role} = data;
-              console.log(role);
               // Store only the token clg
               await AsyncStorage.setItem('token',token);
               await AsyncStorage.setItem('role',role);

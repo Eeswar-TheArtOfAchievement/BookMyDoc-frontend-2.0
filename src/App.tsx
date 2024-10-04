@@ -47,7 +47,8 @@ const App = () => {
       <NavigationContainer>
           {isLoggedIn ? (
             role === 'admin' ? (
-              <AdminDrawerNav /> // Render Admin navigation
+
+                <AdminDrawerNav />
             ) : role === 'doctor' ? (
               <DoctorDrawerNav /> // Render Doctor-specific navigation
             ) : (

@@ -24,6 +24,29 @@ export const useUser = () => {
   return useContext(UserContext);
 };
 
+// Create a context for Admin
+const AdminContext = createContext();
+
+// Create a Provider Component
+export const AdminProvider = ({ children }) => {
+  const [adminDetails, setAdminDetails] = useState(null); // Initialize with null
+
+  const updateAdminDetails = (details) => {
+    setAdminDetails(details);
+  };
+
+  return (
+    <AdminContext.Provider value={{ adminDetails, updateAdminDetails }}>
+      {children}
+    </AdminContext.Provider>
+  );
+};
+
+// Custom hook to use the Admin context
+export const useAdmin = () => {
+  return useContext(AdminContext);
+};
+
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {

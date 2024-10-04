@@ -1,17 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Alert ,Button } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import axios from 'axios';
+import { useUser } from '../../contexts/UserProvider';
 
 const BookAppointmentScreen = ({ route, navigation }) => {
     const [locations, setLocations] = useState([    ]);
     const [doctors, setDoctors] = useState([]);
     const [selectedLocation, setSelectedLocation] = useState('');
     const [selectedDoctor, setSelectedDoctor] = useState('');
-    const [date, setDate] = useState('');
     const [problem, setProblem] = useState('');
     const [symptoms, setSymptoms] = useState('');
     const [timeSlots, setTimeSlots] = useState([]);
     const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
+    const { userDetails , updateUserDetails } = useUser();
+
+    const [date, setDate] = useState(new Date());
+    const [show, setShow] = useState(false);
+
+    // Get today's date and the date one month from now
+    const today = new Date();
+    const maxDate = new Date();
+    maxDate.setMonth(today.getMonth() + 1);
+
+    const onChange = (event, selectedDate) => {
+        const currentDate = selectedDate || date;
+        setShow(false);
+        setDate(currentDate);
+    };
+
+    const showDatePicker = () => {
+        setShow(true);
+    };
 
     // Fetch locations when the component mounts
     useEffect(() => {
@@ -47,66 +68,69 @@ const BookAppointmentScreen = ({ route, navigation }) => {
             setDoctors([]);
         }
     }, [selectedLocation]);
-    const isValidDate = (dateString) => {
-        const regex = /^\d{4}-\d{2}-\d{2}$/;
-        if (!dateString.match(regex)) {return { valid: false, future: false };}
 
-        const selectedDate = new Date(dateString);
-        const today = new Date();
-
-        // Set time to the start of the day for today's date
-        today.setHours(0, 0, 0, 0);
-
-        // Check if selected date is in the future
-        if (selectedDate >= today) {
-            return { valid: true, future: true };
-        }
-
-        // If the selected date is today, compare with the current time
-        if (selectedDate.getTime() === today.getTime()) {
-            return { valid: true, future: false }; // Today is not valid since it should be after the current time
-        }
-
-        return { valid: true, future: false }; // Selected date is in the past
-    };
-
-
-    const handleDateChange = (inputDate) => {
-        const { valid, future } = isValidDate(inputDate);
-        setDate(inputDate);
-        if (!valid) {
-            Alert.alert('Error', 'Invalid date format. Please use YYYY-MM-DD.');
-            return;
-        }
-        if (!future) {
-            Alert.alert('Error', 'Cannot enter past dates or today\'s date unless it is later than the current time.');
-            return;
-        }
-    };
     useEffect(() => {
-        if (isValidDate(date) && selectedDoctor) {
-            fetch(`http://192.168.1.14:5000/api/v1/timeslots?date=${date}&doctor=${selectedDoctor}`)
-                .then((response) => response.json())
-                .then((data) => {
-                    setTimeSlots(data);
-                })
-                .catch((error) => {
+        if (date && selectedDoctor) {
+            const fetchTimeSlots = async () => {
+                try {
+                    const response = await axios.get('http://192.168.1.14:5000/api/v1/appointments/timeslots', {
+                        params: {
+                            date: date,
+                            doctorId: selectedDoctor,
+                        },
+                    });
+                    console.log(response.data);
+                    setTimeSlots(response.data); // Set the time slots from response
+                } catch (error) {
                     console.error('Error fetching time slots:', error);
-                    Alert.alert('Error', 'Could not load time slots.');
-                });
+                    Alert.alert('Error', 'Could not load time slots. \nSelect another doctor');
+                }
+            };
+            fetchTimeSlots();
         } else {
             setTimeSlots([]);
         }
     }, [date, selectedDoctor]);
-    const handleSubmit = () => {
-        if (!selectedDoctor || !date  || !selectedTimeSlot || !problem || !symptoms) {
+
+    const handleSubmit = async () => {
+        // Basic validation
+        if (!selectedDoctor || !date || !selectedTimeSlot || !problem || !symptoms) {
             Alert.alert('Error', 'Please fill in all fields.');
             return;
         }
-        // Here you would typically send the data to your backend
-        Alert.alert('Success', 'Appointment booked successfully!');
-        navigation.goBack(); // Navigate back after booking
+
+        // Prepare the appointment data
+        const appointmentData = {
+            doctorId: selectedDoctor,
+            date: date,
+            timeSlot: selectedTimeSlot,
+            problem: problem,
+            symptoms: symptoms,
+            userId: userDetails.id,
+            locationId : selectedLocation,
+        };
+console.log("details",appointmentData);
+        try {
+            // Send the appointment data to your backend API
+            const response = await axios.post('http://192.168.1.14:5000/api/v1/appointments', appointmentData);
+
+            // Check the response from the backend
+            if (response.status === 201) {
+                setDoctors([]);
+                setTimeSlots([]);
+                setLocations([]);
+                Alert.alert('Success', 'Appointment booked successfully!');
+                navigation.goBack(); // Navigate back after booking
+            } else {
+                setDoctors([]);
+                Alert.alert('Error', 'Failed to book appointment. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error booking appointment:', error);
+            Alert.alert('Error', 'An error occurred while booking the appointment. Please try again.');
+        }
     };
+
 
     return (
         <View style={styles.container}>
@@ -137,13 +161,23 @@ const BookAppointmentScreen = ({ route, navigation }) => {
                 ))}
             </Picker>
 
-            <TextInput
-                style={styles.input}
-                placeholder="Date (YYYY-MM-DD)"
-                value={date}
-                onChangeText={handleDateChange}
-            />
+            <Button title="Select Date" onPress={showDatePicker} />
+            {show && (
+                <DateTimePicker
+                    value={date}
+                    mode="date"
+                    display="default"
+                    onChange={onChange}
+                    minimumDate={today}
+                    maximumDate={maxDate}
+                />
+            )}
+            <Text style={styles.dateText}>{date.toLocaleDateString()}</Text>
+
             <Text style={styles.label}>Select Time Slot:</Text>
+            {timeSlots.length === 0 ? (
+            <Text>No time slots available</Text>
+        ) : (
             <Picker
                 selectedValue={selectedTimeSlot}
                 onValueChange={(itemValue) => setSelectedTimeSlot(itemValue)}
@@ -152,9 +186,14 @@ const BookAppointmentScreen = ({ route, navigation }) => {
             >
                 <Picker.Item label="Select a time slot" value="" />
                 {timeSlots.map((slot, index) => (
-                    <Picker.Item key={index} label={slot} value={slot} />
+                    <Picker.Item
+                        key={index}
+                        label={`${slot.startTime} -- ${slot.endTime}`}
+                        value={`${slot.startTime} -- ${slot.endTime}`}
+                    />
                 ))}
             </Picker>
+        )}
 
             <TextInput
                 style={styles.input}
@@ -180,6 +219,11 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 20,
         backgroundColor: '#F7F9FC',
+    },
+    dateText: {
+        textAlign: 'center',
+        marginTop: 20,
+        fontSize: 18,
     },
     title: {
         fontSize: 24,
