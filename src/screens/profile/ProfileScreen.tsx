@@ -125,7 +125,7 @@ const ProfileScreen = ({navigation}) => {
                 <Text style={styles.value}>{userDetails.phone ? userDetails.phone : '-  -  -  -  -  -'}</Text>
                 <Text style={styles.label}>Gender:</Text>
                 <Text style={styles.value}>{userDetails.gender ? userDetails.gender : '-  -  -  -  -  -'}</Text>
-                <Text style={styles.label}>DateOfBirth:</Text>
+                <Text style={styles.label}>DOB:</Text>
                 <Text style={styles.value}>{userDetails.dateOfBirth ? userDetails.dateOfBirth : '-  -  -  -  -  -'}</Text>
                 <Text style={styles.label}>Location:</Text>
                 <Text style={styles.value}>{userDetails.location ? userDetails.location : '-  -  -  -  -  -'}</Text>

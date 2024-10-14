@@ -21,13 +21,13 @@ const AdminDrawerNav = () => {
                         drawerIcon: getDrawerIcon('home-outline'),
                         title: 'Dashboard', // Optional: Custom title for the drawer item
                     }}
-                />
+                    />
                 <AdminDrawer.Screen name="AdminProfile" component={AdminProfile}
                     options={{
                         drawerIcon: getDrawerIcon('person-outline'),
                         title: 'Profile', // Optional: Custom title for the drawer item
                     }}
-                />
+                    />
             </AdminDrawer.Navigator>
         </AdminProvider>
     );

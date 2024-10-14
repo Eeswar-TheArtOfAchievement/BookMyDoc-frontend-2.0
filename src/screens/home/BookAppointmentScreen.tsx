@@ -79,11 +79,11 @@ const BookAppointmentScreen = ({ route, navigation }) => {
                             doctorId: selectedDoctor,
                         },
                     });
-                    console.log(response.data);
+                    console.log(response.data , "timeSlots");
                     setTimeSlots(response.data); // Set the time slots from response
                 } catch (error) {
                     console.error('Error fetching time slots:', error);
-                    Alert.alert('Error', 'Could not load time slots. \nSelect another doctor');
+                    Alert.alert('Error', 'Could not load time slots. \nSelect another doctor / date ');
                 }
             };
             fetchTimeSlots();
@@ -109,7 +109,6 @@ const BookAppointmentScreen = ({ route, navigation }) => {
             userId: userDetails.id,
             locationId : selectedLocation,
         };
-console.log("details",appointmentData);
         try {
             // Send the appointment data to your backend API
             const response = await axios.post('http://192.168.1.14:5000/api/v1/appointments', appointmentData);
@@ -119,6 +118,8 @@ console.log("details",appointmentData);
                 setDoctors([]);
                 setTimeSlots([]);
                 setLocations([]);
+                setProblem('');
+                setSymptoms('');
                 Alert.alert('Success', 'Appointment booked successfully!');
                 navigation.goBack(); // Navigate back after booking
             } else {

@@ -21,13 +21,13 @@ const Stack = createStackNavigator();
 const App = () => {
     const [isLoggedIn, setIsLoggedIn] = React.useState(null);
     const [role, setRole] = React.useState(null);
-  
+
     useEffect(() => {
       const checkLoginStatus = async () => {
         try {
           const userData = await AsyncStorage.getItem('token');
-          const role = await AsyncStorage.getItem('role');
-          setRole(role);
+          const role1 = await AsyncStorage.getItem('role');
+          setRole(role1);
           setIsLoggedIn(userData ? true : false);
         } catch (error) {
           console.error('Failed to check login status:', error);
@@ -62,7 +62,7 @@ const App = () => {
                       headerTitleStyle: {
                         fontWeight: '400',
                       },
-                    }}
+                    }} initialRouteName={role ? 'Login' : 'Disclosure of App Permissions'}
                     >
                   <Stack.Screen name="Disclosure of App Permissions" component={DisclosureScreen} />
                   <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false }} />
@@ -72,7 +72,7 @@ const App = () => {
                   <Stack.Screen name="TermsConditions" component={TermsConditions} />
                   <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
                   <Stack.Screen name="TabNavigator" component={TabNavigator} options={{ headerShown: false }} />
-                  {/* <Stack.Screen name="DoctorDrawerNav" component={DoctorDrawerNav} options={{ headerShown: false }} /> */}
+                  <Stack.Screen name="DoctorDrawerNav" component={DoctorDrawerNav} options={{ headerShown: false }} />
                   <Stack.Screen name="AdminDrawerNav" component={AdminDrawerNav} options={{ headerShown: false }} />
               </Stack.Navigator>
           )}

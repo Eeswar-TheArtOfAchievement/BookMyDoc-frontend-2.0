@@ -1,32 +1,87 @@
-import React, { useState } from 'react';
-import { View, Text, Button, FlatList, StyleSheet, Alert, TextInput } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Button, FlatList, StyleSheet, Alert, TextInput, Modal, TouchableOpacity } from 'react-native';
+import axios from 'axios';
+import { useUser } from '../../contexts/UserProvider';
 
 const MyAppointmentsScreen = () => {
-    const [appointments, setAppointments] = useState([
-        { id: '1', doctor: 'Dr. John Doe', date: '2023-09-20', time: '10:00 AM', location: 'Location 1', contact: '123-456-7890', status: 'upcoming' },
-        { id: '2', doctor: 'Dr. Jane Smith', date: '2023-09-18', time: '11:30 AM', location: 'Location 2', contact: '234-567-8901', status: 'completed' },
-        { id: '3', doctor: 'Dr. Emily Johnson', date: '2023-09-22', time: '2:00 PM', location: 'Location 1', contact: '345-678-9012', status: 'cancelled' },
-        { id: '4', doctor: 'Dr. Emily Johnson', date: '2023-09-22', time: '2:00 PM', location: 'Location 1', contact: '345-678-9012', status: 'cancelled' },
-    ]);
-
+    const [appointments, setAppointments] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedAppointment, setSelectedAppointment] = useState(null);
+    const [updatedDoctor, setUpdatedDoctor] = useState('');
+    const [updatedDate, setUpdatedDate] = useState('');
+    const [updatedTime, setUpdatedTime] = useState('');
+    const [updatedLocation, setUpdatedLocation] = useState('');
+    const [updatedContact, setUpdatedContact] = useState('');
+    const { userDetails , updateUserDetails } = useUser();
+    const [patientId, setpatientId] = useState(userDetails.id);
+    // Fetch appointments on mount
+    console.log(patientId , 'h');
+    useEffect(() => {
+        const fetchAppointments = async () => {
+            try {
+                const response = await axios.get(`http://192.168.1.14:5000/api/v1/appointments/patient/${patientId}`); // Update to your server URL
+                console.log(response.data);
+                setAppointments(response.data);
+            } catch (error) {
+                console.error(error);
+                Alert.alert('Error', 'Failed to fetch appointments');
+            }
+        };
+
+        fetchAppointments();
+    }, []);
 
     const filteredAppointments = appointments.filter(appointment =>
-        appointment.doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        appointment.location.toLowerCase().includes(searchTerm.toLowerCase())
+        appointment.doctorId.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        appointment.locationId.cityName.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const handleEditAppointment = (id) => {
-        Alert.alert('Edit Appointment', `Editing appointment with ID: ${id}`);
-        // Logic to navigate to the edit screen or open an edit modal
+    const handleEditAppointment = (appointment) => {
+        setSelectedAppointment(appointment);
+        setUpdatedDoctor(appointment.doctor);
+        setUpdatedDate(appointment.date);
+        setUpdatedTime(appointment.time);
+        setUpdatedLocation(appointment.location);
+        setUpdatedContact(appointment.contact);
+        setModalVisible(true);
     };
 
-    const handleCancelAppointment = (id) => {
+    const handleUpdateAppointment = async () => {
+        try {
+            const updatedAppointment = {
+                doctor: updatedDoctor,
+                date: updatedDate,
+                time: updatedTime,
+                location: updatedLocation,
+                contact: updatedContact,
+                status: selectedAppointment.status, // Keep the same status
+            };
+
+            await axios.put(`http://localhost:5000/appointments/${selectedAppointment._id}`, updatedAppointment);
+            setAppointments(prev => prev.map(appointment =>
+                appointment._id === selectedAppointment._id ? { ...appointment, ...updatedAppointment } : appointment
+            ));
+            setModalVisible(false);
+            Alert.alert('Success', 'Appointment updated successfully!');
+        } catch (error) {
+            console.error(error);
+            Alert.alert('Error', 'Failed to update appointment');
+        }
+    };
+
+    const handleCancelAppointment = async (id) => {
         Alert.alert('Cancel Appointment', `Are you sure you want to cancel appointment ID: ${id}?`, [
             { text: 'Cancel', style: 'cancel' },
-            { text: 'OK', onPress: () => {
-                setAppointments(prev => prev.filter(appointment => appointment.id !== id));
-                Alert.alert('Cancelled', 'Your appointment has been cancelled.');
+            { text: 'OK', onPress: async () => {
+                try {
+                    await axios.delete(`http://localhost:5000/appointments/${id}`);
+                    setAppointments(prev => prev.filter(appointment => appointment._id !== id));
+                    Alert.alert('Cancelled', 'Your appointment has been cancelled.');
+                } catch (error) {
+                    console.error(error);
+                    Alert.alert('Error', 'Failed to cancel appointment');
+                }
             }},
         ]);
     };
@@ -46,15 +101,15 @@ const MyAppointmentsScreen = () => {
 
     const renderItem = ({ item }) => (
         <View style={[styles.appointmentCard, { borderColor: getStatusColor(item.status) }]}>
-            <Text style={styles.doctorName}>{item.doctor}</Text>
-            <Text>Date: {item.date}</Text>
-            <Text>Time: {item.time}</Text>
-            <Text>Location: {item.location}</Text>
+            <Text style={styles.doctorName}>{item.doctorId.fullName}</Text>
+            <Text>Date: {new Date(item.appointmentDate).toLocaleDateString()}</Text>
+            <Text>Time: {new Date(item.appointmentDate).toLocaleTimeString()}</Text>
+            <Text>Location: {item.locationId.hospitalName} , {item.locationId.address} , {item.locationId.cityName}</Text>
             <Text>Contact: {item.contact}</Text>
             <Text>Status: {item.status}</Text>
             <View style={styles.buttonContainer}>
-                <Button title="Edit" onPress={() => handleEditAppointment(item.id)} />
-                <Button title="Cancel" color="#F44336" onPress={() => handleCancelAppointment(item.id)} />
+                <Button title="Edit" onPress={() => handleEditAppointment(item)} />
+                <Button title="Cancel" color="#F44336" onPress={() => handleCancelAppointment(item._id)} />
             </View>
         </View>
     );
@@ -63,16 +118,65 @@ const MyAppointmentsScreen = () => {
         <View style={styles.container}>
             <TextInput
                 style={styles.searchInput}
-                placeholder="Search by doctor or location"
+                placeholder="Search by doctor or city"
                 value={searchTerm}
                 onChangeText={setSearchTerm}
             />
             <FlatList
                 data={filteredAppointments}
                 renderItem={renderItem}
-                keyExtractor={item => item.id}
+                keyExtractor={item => item._id} // MongoDB ID is used
                 showsVerticalScrollIndicator={false}
             />
+
+            {/* Modal for editing appointment */}
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => {
+                    setModalVisible(!modalVisible);
+                }}>
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>Edit Appointment</Text>
+                        <TextInput
+                            style={styles.modalInput}
+                            placeholder="Doctor"
+                            value={updatedDoctor}
+                            onChangeText={setUpdatedDoctor}
+                        />
+                        <TextInput
+                            style={styles.modalInput}
+                            placeholder="Date"
+                            value={updatedDate}
+                            onChangeText={setUpdatedDate}
+                        />
+                        <TextInput
+                            style={styles.modalInput}
+                            placeholder="Time"
+                            value={updatedTime}
+                            onChangeText={setUpdatedTime}
+                        />
+                        <TextInput
+                            style={styles.modalInput}
+                            placeholder="Location"
+                            value={updatedLocation}
+                            onChangeText={setUpdatedLocation}
+                        />
+                        <TextInput
+                            style={styles.modalInput}
+                            placeholder="Contact"
+                            value={updatedContact}
+                            onChangeText={setUpdatedContact}
+                        />
+                        <View style={styles.modalButtonContainer}>
+                            <Button title="Save" onPress={handleUpdateAppointment} />
+                            <Button title="Cancel" onPress={() => setModalVisible(false)} color="#F44336" />
+                        </View>
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 };
@@ -109,7 +213,37 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         marginTop: 10,
     },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+        width: '80%',
+        backgroundColor: 'white',
+        borderRadius: 10,
+        padding: 20,
+        alignItems: 'center',
+    },
+    modalTitle: {
+        fontSize: 20,
+        marginBottom: 20,
+    },
+    modalInput: {
+        height: 40,
+        borderColor: '#ddd',
+        borderWidth: 1,
+        borderRadius: 5,
+        padding: 10,
+        marginBottom: 15,
+        width: '100%',
+    },
+    modalButtonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+    },
 });
 
 export default MyAppointmentsScreen;
-

@@ -122,16 +122,16 @@ const SignUpScreen = ({navigation}) => {
               <View style={styles.row}>
 
                 <View style={styles.radioContainer}>
-                    <Text style={styles.footerText1}>User</Text>
                     <RadioButton value="user" />
+                    <Text style={styles.footerText1}>User</Text>
                 </View>
                 <View style={styles.radioContainer}>
-                    <Text style={styles.footerText1}>Doctor</Text>
                     <RadioButton value="doctor" />
+                    <Text style={styles.footerText1}>Doctor</Text>
                 </View>
                 <View style={styles.radioContainer}>
-                    <Text style={styles.footerText1}>Admin</Text>
                     <RadioButton value="admin" />
+                    <Text style={styles.footerText1}>Admin</Text>
                 </View>
               </View>
             </RadioButton.Group>

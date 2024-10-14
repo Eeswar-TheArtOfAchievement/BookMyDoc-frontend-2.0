@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useUser } from '../../contexts/UserProvider';
+import Swiper from 'react-native-swiper';
 const HomeScreen = ({ navigation }) => {
     const doctors = [
         { name: 'Dr. John Doe', specialty: 'Cardiologist' },
@@ -11,6 +12,7 @@ const HomeScreen = ({ navigation }) => {
     ];
     const {userDetails, updateUserDetails } = useUser();
     const [formattedDateOfBirth, setFormattedDateOfBirth] = useState(''); // State to hold formatted date
+    const [doctorDetails, setDoctorDetails] = useState([]); // State to hold formatted date
     useEffect(() => {
         const fetchUserData = async () => {
             try {
@@ -60,29 +62,58 @@ const HomeScreen = ({ navigation }) => {
         };
         fetchUserData();
     }, []);
+    useEffect(() => {
+        fetch('http://192.168.1.14:5000/api/v1/doctors') // Adjust the endpoint as necessary
+            .then((response) => response.json())
+            .then((data) => {
+                setDoctorDetails(data); // Assuming data is an array of location objects
+            })
+            .catch((error) => {
+                console.error('Error fetching locations:', error);
+                Alert.alert('Error', 'Could not load locations.');
+            });
+    }, []);
+
+    console.log(doctorDetails)
     return (
         <View style={styles.container}>
-            <Image
+            {/* <Image
                 source={require('../../assets/asset2.png')} // Use a relevant image
                 style={styles.banner}
                 resizeMode="cover"
-            />
+            /> */}
+            <Swiper autoplay={true} autoplayTimeout={4}
+            dotColor="#ccc" activeDotColor="red"
+            >
+              <View style={styles.slider}>
+                <Image source={require('../../assets/asset2.png')} style={styles.banner} />
+              </View>
+              <View style={styles.slider}>
+                <Image source={require('../../assets/asset2.png')} style={styles.banner} />
+              </View>
+              <View style={styles.slider}>
+                <Image source={require('../../assets/asset2.png')} style={styles.banner} />
+              </View>
+              <View style={styles.slider}>
+                <Image source={require('../../assets/asset2.png')} style={styles.banner} />
+              </View>
+            </Swiper>
             <Text style={styles.title}>Welcome to Your Healthcare App</Text>
             <Text style={styles.subtitle}>Book your appointment with our available doctors</Text>
 
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.doctorList}>
-                {doctors.map((doctor, index) => (
+                {doctors.map((doctorDetails , index) => (
                     <View key={index} style={styles.doctorCard}>
                         <Image 
         source={{ uri: 'https://picsum.photos/200/300 ' }} 
         style={styles.image} 
         resizeMode="cover" // or "contain", "stretch", etc.
       />
-                        <Text style={styles.doctorName}>{doctor.name}</Text>
-                        <Text style={styles.doctorSpecialty}>{doctor.specialty}</Text>
+                        <Text style={styles.doctorName}>{doctorDetails.name}</Text>
+                        <Text style={styles.doctorSpecialty}>{doctorDetails.specialty}</Text>
                         <TouchableOpacity
                             style={styles.button}
-                            onPress={() => navigation.navigate('BookAppointment', { doctor: doctor.name })}>
+                            onPress={() => navigation.navigate('BookAppointment', { doctor: doctorDetails.name })}>
                             <Text style={styles.buttonText}>Book Now</Text>
                         </TouchableOpacity>
                     </View>
@@ -100,7 +131,12 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F7F9FC',
-        padding: 20,
+        paddingHorizontal:20,
+        paddingTop:10,
+        paddingBottom:20,
+    },
+    slider:{
+        flex:1,
     },
     banner: {
         width: '100%',
