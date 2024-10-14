@@ -100,9 +100,6 @@ const ProfileScreen = ({navigation}) => {
             <View style={styles.card}>
                 <View style={styles.photoContainer}>
                     <View style={styles.nameContainer}>
-                        <Text style={styles.label}>Full Name:</Text>
-                        <Text style={styles.value}>{userDetails.fullName}</Text>
-                    </View>
                     <View style={styles.container1}>
                     {userDetails.profileImage ? (
                         <Image
@@ -118,17 +115,22 @@ const ProfileScreen = ({navigation}) => {
                         )}
                         <Button title="upload image" onPress={pickImage} />
                     </View>
+                        <Text style={styles.label}>Full Name:</Text>
+                        <Text style={styles.value}>{userDetails.fullName}</Text>
+                        <Text style={styles.label}>Email:</Text>
+                        <Text style={styles.value}>{userDetails.email}</Text>
+                        <Text style={styles.label}>Phone:</Text>
+                        <Text style={styles.value}>{userDetails.phone ? userDetails.phone : '-  -  -  -  -  -'}</Text>
+                        <Text style={styles.label}>Gender:</Text>
+                        <Text style={styles.value}>{userDetails.gender ? userDetails.gender : '-  -  -  -  -  -'}</Text>
+                        <Text style={styles.label}>DOB:</Text>
+                        <Text style={styles.value}>{userDetails.dateOfBirth ? userDetails.dateOfBirth : '-  -  -  -  -  -'}</Text>
+                        <Text style={styles.label}>Location:</Text>
+                        <Text style={styles.value}>{userDetails.location ? userDetails.location : '-  -  -  -  -  -'}</Text>
+                    </View>
+                   
                 </View>
-                <Text style={styles.label}>Email:</Text>
-                <Text style={styles.value}>{userDetails.email}</Text>
-                <Text style={styles.label}>Phone:</Text>
-                <Text style={styles.value}>{userDetails.phone ? userDetails.phone : '-  -  -  -  -  -'}</Text>
-                <Text style={styles.label}>Gender:</Text>
-                <Text style={styles.value}>{userDetails.gender ? userDetails.gender : '-  -  -  -  -  -'}</Text>
-                <Text style={styles.label}>DOB:</Text>
-                <Text style={styles.value}>{userDetails.dateOfBirth ? userDetails.dateOfBirth : '-  -  -  -  -  -'}</Text>
-                <Text style={styles.label}>Location:</Text>
-                <Text style={styles.value}>{userDetails.location ? userDetails.location : '-  -  -  -  -  -'}</Text>
+                
             </View>
             <TouchableOpacity style={styles.button} onPress={() => setModalVisible(true)}>
                 <Text style={styles.buttonText}>Update Profile</Text>

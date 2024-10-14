@@ -66,7 +66,7 @@ const LoginScreen = ({navigation}) => {
           autoCapitalize="none"
         />
 
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <TouchableOpacity style={styles.button} onPress={handleLogin} >
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
       </View>

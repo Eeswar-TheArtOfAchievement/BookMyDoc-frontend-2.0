@@ -6,7 +6,9 @@ import axios from 'axios';
 import { useUser } from '../../contexts/UserProvider';
 
 const BookAppointmentScreen = ({ route, navigation }) => {
-    const [locations, setLocations] = useState([    ]);
+    const { doctorDetails } = route.params;
+    console.log("1",doctorDetails);
+    const [locations, setLocations] = useState([]);
     const [doctors, setDoctors] = useState([]);
     const [selectedLocation, setSelectedLocation] = useState('');
     const [selectedDoctor, setSelectedDoctor] = useState('');
@@ -18,7 +20,12 @@ const BookAppointmentScreen = ({ route, navigation }) => {
 
     const [date, setDate] = useState(new Date());
     const [show, setShow] = useState(false);
-
+    useEffect(() => {
+        if (doctorDetails) {
+            setSelectedLocation([doctorDetails.locationId.cityName]); // Set the selected location
+            setSelectedDoctor(doctorDetails.fullName); // Set the selected doctor
+        }
+    }, [doctorDetails]);
     // Get today's date and the date one month from now
     const today = new Date();
     const maxDate = new Date();

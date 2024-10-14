@@ -3,16 +3,42 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useUser } from '../../contexts/UserProvider';
 import Swiper from 'react-native-swiper';
+
+import Icon from 'react-native-vector-icons/Ionicons';
+import { FlatList } from 'react-native-gesture-handler';
 const HomeScreen = ({ navigation }) => {
-    const doctors = [
-        { name: 'Dr. John Doe', specialty: 'Cardiologist' },
-        { name: 'Dr. Jane Smith', specialty: 'Dermatologist' },
-        { name: 'Dr. Emily Johnson', specialty: 'Pediatrician' },
-        { name: 'Dr. Michael Brown', specialty: 'Orthopedic' },
-    ];
+
     const {userDetails, updateUserDetails } = useUser();
     const [formattedDateOfBirth, setFormattedDateOfBirth] = useState(''); // State to hold formatted date
     const [doctorDetails, setDoctorDetails] = useState([]); // State to hold formatted date
+    const [visible, setVisible] = useState(false);
+
+    const doctorsSpecializations = [
+        { id: '1', name: 'Cardiologist', image: require('../../assets/Cardiologist.png') },
+        { id: '2', name: 'Dermatologist', image: require('../../assets/Dermatologist.png') },
+        { id: '3', name: 'Pediatrician', image: require('../../assets/Pediatrician.png') },
+        { id: '4', name: 'Orthopedic', image: require('../../assets/Orthopedic.png') },
+        { id: '5', name: 'Neurologist', image: require('../../assets/Neurologist.png') },
+        { id: '6', name: 'Oncologist', image: require('../../assets/Oncologist.png') },
+        { id: '7', name: 'Gastroenterologist', image: require('../../assets/Gastroenterologist.png') },
+        { id: '8', name: 'Psychiatrist', image: require('../../assets/Psychiatrist.png') },
+        { id: '9', name: 'Ophthalmologist', image: require('../../assets/Ophthalmologist.png') },
+        { id: '10', name: 'Endocrinologist', image: require('../../assets/Endocrinologist.png') },
+      ];
+      const renderItem = ({ item }) => (
+        <View style={styles.itemContainer}>
+          <Image source={item.image} style={styles.image1} />
+          <Text style={styles.itemText}>{item.name}</Text>
+        </View>
+      );
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setVisible(false);
+    }, 2000); // 2 seconds
+
+    return () => clearTimeout(timer); // Cleanup the timer
+  }, []);
+
     useEffect(() => {
         const fetchUserData = async () => {
             try {
@@ -45,7 +71,7 @@ const HomeScreen = ({ navigation }) => {
                         // Set the formatted date for rendering
                         setFormattedDateOfBirth(formattedDate);
                             if (tempDetails && userData.fullName && userData.email) {
-                                Alert.alert('Welcome', `Welcome, ${userData.fullName}!`);
+                                setVisible(true);
                             } else {
                                 Alert.alert('Error', 'User data is incomplete or not available.');
                             }
@@ -73,57 +99,110 @@ const HomeScreen = ({ navigation }) => {
                 Alert.alert('Error', 'Could not load locations.');
             });
     }, []);
-
-    console.log(doctorDetails)
     return (
-        <View style={styles.container}>
-            {/* <Image
-                source={require('../../assets/asset2.png')} // Use a relevant image
-                style={styles.banner}
-                resizeMode="cover"
-            /> */}
-            <Swiper autoplay={true} autoplayTimeout={4}
+        <ScrollView style={styles.container}>
+      {visible && <Text style={styles.title}>Welcome {userDetails.fullName}</Text>}
+      <Text style={styles.subtitle}>Book your appointment with our experienced doctors</Text>
+            <Swiper autoplay={true} autoplayTimeout={4} style={styles.swiperContainer}
             dotColor="#ccc" activeDotColor="red"
             >
               <View style={styles.slider}>
-                <Image source={require('../../assets/asset2.png')} style={styles.banner} />
+                <Image source={{uri:'https://thumbs.dreamstime.com/b/healthcare-concept-text-doctor-appointment-magnifying-glass-composition-tablets-photo-331928978.jpg'}} style={styles.banner} />
               </View>
               <View style={styles.slider}>
-                <Image source={require('../../assets/asset2.png')} style={styles.banner} />
+                <Image source={{uri:'https://www.accuhealthlabs.com/wp-content/uploads/2021/01/800-X-502_02.jpg'}} style={styles.banner} />
               </View>
               <View style={styles.slider}>
-                <Image source={require('../../assets/asset2.png')} style={styles.banner} />
+                <Image source={{uri:'https://t3.ftcdn.net/jpg/09/87/05/18/360_F_987051862_a1Ura4TzPKFlpiSmwHwNGYlkbfkIHhwg.jpg'}} style={styles.banner} />
               </View>
               <View style={styles.slider}>
-                <Image source={require('../../assets/asset2.png')} style={styles.banner} />
+                <Image source={{uri:'https://png.pngtree.com/png-vector/20220520/ourmid/pngtree-personal-doctor-appointment-2d-vector-isolated-illustration-png-image_4660145.png'}} style={styles.banner} />
               </View>
             </Swiper>
-            <Text style={styles.title}>Welcome to Your Healthcare App</Text>
-            <Text style={styles.subtitle}>Book your appointment with our available doctors</Text>
-
+            <View style={styles.heading}>
+                <Text style={styles.headText}>Top Doctors</Text>
+                <Text style={styles.subText}>See All</Text>
+            </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.doctorList}>
-                {doctors.map((doctorDetails , index) => (
+                {doctorDetails.map((doctorDetails , index) => (
                     <View key={index} style={styles.doctorCard}>
-                        <Image 
-        source={{ uri: 'https://picsum.photos/200/300 ' }} 
-        style={styles.image} 
-        resizeMode="cover" // or "contain", "stretch", etc.
-      />
-                        <Text style={styles.doctorName}>{doctorDetails.name}</Text>
-                        <Text style={styles.doctorSpecialty}>{doctorDetails.specialty}</Text>
+                        <Image
+                        source={{ uri: 'https://picsum.photos/200/300 ' }}
+                        style={styles.image}
+                        resizeMode="cover"
+                        />
+                        <View>
+                        <Text style={styles.doctorName}>{doctorDetails.fullName}</Text>
+                        <Text numberOfLines={1} ellipsizeMode="tail"  style={styles.doctorSpecialty}>{doctorDetails.specializations[0]?.specializationName || 'No Specialization'}</Text>
+                        <Text style={styles.doctorSpecialty}> ⭐{doctorDetails.rating} </Text>
+                        </View>
                         <TouchableOpacity
                             style={styles.button}
-                            onPress={() => navigation.navigate('BookAppointment', { doctor: doctorDetails.name })}>
+                            onPress={() => navigation.navigate('Book-Appointment', { doctorDetails: doctorDetails })}>
                             <Text style={styles.buttonText}>Book Now</Text>
                         </TouchableOpacity>
                     </View>
                 ))}
             </ScrollView>
 
-            <TouchableOpacity style={styles.appointmentButton} onPress={() => navigation.navigate('MyAppointments')}>
+            {/* <TouchableOpacity style={styles.appointmentButton} onPress={() => navigation.navigate('My-Appointments')}>
                 <Text style={styles.appointmentButtonText}>View My Appointments</Text>
-            </TouchableOpacity>
-        </View>
+            </TouchableOpacity> */}
+            <Text style={styles.headText}>We specialize in these fields</Text>
+            <FlatList
+                data={doctorsSpecializations}
+                renderItem={renderItem}
+                keyExtractor={item => item.id}
+                numColumns={2} // Create a 2-column layout
+                style={styles.grid}
+                />
+
+
+            <View style={styles.footerCard}>
+                <Text style={styles.text}>Our community of doctors and patients drive us to create technologies for better and affordable healthcare</Text>
+                {/* <Text style={styles.subtitle}>We are committed to providing high-quality, affordable, and accessible healthcare services.</Text> */}
+                {/* <Text style={styles.subtitle}>We are a team of experienced doctors and healthcare professionals</Text> */}
+                {/* <Text style={styles.subtitle}>dedicated to providing the best healthcare services to our patients.</Text> */}
+                <View >
+                    <View style={styles.aboutContainer}>
+                        <View style={styles.aboutContainer1}>
+                            <Icon name="person" size={30} color="#1fb1bd" />
+                            <Text style={styles.subText}>Our Users</Text>
+                            <Text style={styles.text}>30 Crores</Text>
+                        </View>
+                        <View style={styles.aboutContainer1}>
+                            <Icon name="bag-add" size={30} color="#1fb1bd" />
+                            <Text style={styles.subText}>Our Doctors</Text>
+                            <Text style={styles.text}>1 Lakh</Text>
+                        </View>
+                    </View>
+                    <View style={styles.aboutContainer}>
+                        <View style={styles.aboutContainer1}>
+                        <Icon name="add-circle" size={30} color="#1fb1bd" />
+                        <Text style={styles.subText}>Hospitals</Text>
+                        <Text style={styles.text}>20,000</Text>
+                        </View>
+                        <View style={styles.aboutContainer1}>
+                        <Icon name="chatbox-ellipses" size={30} color="#1fb1bd" />
+                        <Text style={styles.subText}>Patient Stories</Text>
+                        <Text style={styles.text}>40 Lakh</Text>
+                        </View>
+                    </View>
+                </View>
+                <View >
+                    <View style={styles.subText1}>
+                    <Image source={require('../../assets/logo.png')} style={styles.logo}/>
+                    <Text style={styles.headText}>&nbsp;BookMyDoc</Text>
+                    </View>
+                    <Text style={styles.subText2}>Our vision is to help mankind live healthier, longer lives by making quality healthcare accessible, affordable and convenient</Text>
+                    <View style={styles.subText1}>
+                        <Text style={styles.subText}>Made with</Text>
+                        <Icon name="heart" size={30} color="#1fb1bd" />
+                        <Text style={styles.subText}>in Savisettipalli</Text>
+                    </View>
+                </View>
+            </View>
+        </ScrollView>
     );
 };
 
@@ -135,13 +214,88 @@ const styles = StyleSheet.create({
         paddingTop:10,
         paddingBottom:20,
     },
+    swiperContainer:{
+        height:250,
+    },
     slider:{
         flex:1,
+        borderRadius:20,
+    },
+    grid:{
+        flex: 1,
+        padding: 10,
+    },
+    itemContainer: {
+        flex: 1,
+        alignItems: 'center',
+        margin: 5,
+        padding: 10,
+        backgroundColor: '#f9f9f9',
+        borderRadius: 8,
+        elevation: 2,
+      },
+      image1: {
+        width: 150,
+        height: 100,
+        borderRadius: 8,
+        marginBottom: 10,
+      },
+      itemText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        textAlign: 'center',
+      },
+    logo:{
+        height:30,
+        width:30,
+    },
+    text:{
+        fontSize: 24,
+        color: '#7D8CA3',
+        marginBottom: 20,
+    },
+
+    footerCard:{
+        marginTop: 10,
+        marginBottom: 40,
+        backgroundColor: '#',
+    },
+    aboutContainer:{
+        flexDirection: 'row',
+        justifyContent:'flex-start',
+        marginBottom: 20,
+    },
+    aboutContainer1:{
+        width:'50%',
     },
     banner: {
         width: '100%',
         height: 200,
         borderRadius: 10,
+    },
+    heading: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginVertical: 20,
+    },
+    headText: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#2E3A47',
+    },
+    subText:{
+        fontSize: 16,
+        color: 'black',
+    },
+    subText2:{
+        fontSize: 20,
+        color: 'black',
+    },
+    subText1:{
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 10,
     },
     title: {
         fontSize: 28,
@@ -150,22 +304,34 @@ const styles = StyleSheet.create({
         color: '#2E3A47',
     },
     subtitle: {
-        fontSize: 16,
+        fontSize: 17,
         color: '#7D8CA3',
         marginBottom: 20,
     },
     doctorList: {
-        marginBottom: 20,
+        
+    },
+    image :{
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        paddingHorizontal: 10,
+        marginBottom: 10,
     },
     doctorCard: {
+        marginBottom: 20,
+        height: 240,
+        paddingVertical: 15,
         backgroundColor: '#fff',
         borderRadius: 10,
-        padding: 15,
         marginRight: 15,
         elevation: 3,
-        width: 150,
+        width: 155,
         alignItems: 'center',
+        shadowOpacity: 0.25, // Opacity of the shadow
+    shadowRadius: 3.5,   // Radius of the shadow
     },
+
     doctorName: {
         fontSize: 16,
         fontWeight: 'bold',
@@ -195,10 +361,6 @@ const styles = StyleSheet.create({
     appointmentButtonText: {
         color: '#fff',
         fontSize: 16,
-    },
-    image :{
-        width: 100,
-        height: 200,
     },
 });
 
