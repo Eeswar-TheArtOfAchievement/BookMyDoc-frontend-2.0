@@ -24,6 +24,29 @@ export const useUser = () => {
   return useContext(UserContext);
 };
 
+const AppointmentContext = createContext();
+
+export const AppointmentProvider = ({ children }) => {
+    const [newAppointments, setNewAppointments] = useState([]);
+
+    const updateNewAppointments = (newAppointment) => {
+        setNewAppointments((prev) => [...prev, newAppointment]);
+    };
+
+    return (
+        <AppointmentContext.Provider value={{ newAppointments, updateNewAppointments }}>
+            {children}
+        </AppointmentContext.Provider>
+    );
+};
+export const useNewAppointments = () => useContext(AppointmentContext);
+
+
+
+
+
+
+
 // Create a context for Admin
 const AdminContext = createContext();
 

@@ -1,31 +1,59 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, Alert ,Button } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Alert ,Button, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import axios from 'axios';
-import { useUser } from '../../contexts/UserProvider';
+import { useNewAppointments, useUser } from '../../contexts/UserProvider';
+import HorizontalDatepicker from '@awrminkhodaei/react-native-horizontal-datepicker';
+import { Pressable, ScrollView } from 'react-native-gesture-handler';
+import { ActivityIndicator } from 'react-native';
 
+import axios from 'axios';
+import Toast from 'react-native-toast-message';
 const BookAppointmentScreen = ({ route, navigation }) => {
-    const { doctorDetails } = route.params;
-    console.log("1",doctorDetails);
+    const { updateNewAppointments } = useNewAppointments();
+    
     const [locations, setLocations] = useState([]);
-    const [doctors, setDoctors] = useState([]);
     const [selectedLocation, setSelectedLocation] = useState('');
+    const [doctors, setDoctors] = useState([]);
     const [selectedDoctor, setSelectedDoctor] = useState('');
     const [problem, setProblem] = useState('');
     const [symptoms, setSymptoms] = useState('');
     const [timeSlots, setTimeSlots] = useState([]);
     const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
     const { userDetails , updateUserDetails } = useUser();
+    const [loading, setLoading] = useState(false);
 
+    const [selectedDate, setSelectedDate] =useState('');
+    const [selectedTime, setSelectedTime] = useState([]);
+    const [selectedSlotId, setSelectedSlotId] = useState('');
+    const [location, setLocation] = useState('');
+    const [customerLocation, setCustomerLocation] = useState('')
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const startDate = tomorrow;
+    const endDate = new Date(tomorrow);
+    endDate.setDate(endDate.getDate() + 30);
+    const showToast = () => {
+        Toast.show({
+          type: 'success',
+          text1: 'Appointment booked successfully',
+        //   text2: 'Appointment Booked Successfully  👋',
+        //   style: {
+        //     height: 100, // Customize height
+        //     width: 400, // Customize width
+        //     backgroundColor: '#000', // Customize background color
+        // },
+
+        });
+      }
     const [date, setDate] = useState(new Date());
     const [show, setShow] = useState(false);
-    useEffect(() => {
-        if (doctorDetails) {
-            setSelectedLocation([doctorDetails.locationId.cityName]); // Set the selected location
-            setSelectedDoctor(doctorDetails.fullName); // Set the selected doctor
-        }
-    }, [doctorDetails]);
+    // useEffect(() => {
+    //     if (doctorDetails) {
+    //         setSelectedLocation([doctorDetails.locationId.cityName]); // Set the selected location
+    //         setSelectedDoctor(doctorDetails.fullName); // Set the selected doctor
+    //     }
+    // }, [doctorDetails]);
     // Get today's date and the date one month from now
     const today = new Date();
     const maxDate = new Date();
@@ -37,21 +65,19 @@ const BookAppointmentScreen = ({ route, navigation }) => {
         setDate(currentDate);
     };
 
-    const showDatePicker = () => {
-        setShow(true);
-    };
 
-    // Fetch locations when the component mounts
     useEffect(() => {
-        fetch('http://192.168.1.14:5000/api/v1/doctors/locations') // Adjust the endpoint as necessary
-            .then((response) => response.json())
-            .then((data) => {
-                setLocations(data); // Assuming data is an array of location objects
-            })
-            .catch((error) => {
+        const fetchLocations = async () => {
+            try {
+                const response = await axios.get('http://192.168.1.14:5000/api/v1/doctors/locations');
+                setLocations(response.data);
+            } catch (error) {
                 console.error('Error fetching locations:', error);
                 Alert.alert('Error', 'Could not load locations.');
-            });
+            }
+        };
+
+        fetchLocations();
     }, []);
 
     useEffect(() => {
@@ -77,16 +103,17 @@ const BookAppointmentScreen = ({ route, navigation }) => {
     }, [selectedLocation]);
 
     useEffect(() => {
-        if (date && selectedDoctor) {
+        if (selectedDate && selectedDoctor) {
+            setTimeSlots([]);
+            setSelectedTime([]);
             const fetchTimeSlots = async () => {
                 try {
                     const response = await axios.get('http://192.168.1.14:5000/api/v1/appointments/timeslots', {
                         params: {
-                            date: date,
+                            date: selectedDate,
                             doctorId: selectedDoctor,
                         },
                     });
-                    console.log(response.data , "timeSlots");
                     setTimeSlots(response.data); // Set the time slots from response
                 } catch (error) {
                     console.error('Error fetching time slots:', error);
@@ -97,11 +124,13 @@ const BookAppointmentScreen = ({ route, navigation }) => {
         } else {
             setTimeSlots([]);
         }
-    }, [date, selectedDoctor]);
+    }, [selectedDate, selectedDoctor]);
 
     const handleSubmit = async () => {
+      setLoading(true);
+
         // Basic validation
-        if (!selectedDoctor || !date || !selectedTimeSlot || !problem || !symptoms) {
+        if (!selectedDoctor || !selectedDate || !selectedTime || !problem || !symptoms) {
             Alert.alert('Error', 'Please fill in all fields.');
             return;
         }
@@ -109,8 +138,8 @@ const BookAppointmentScreen = ({ route, navigation }) => {
         // Prepare the appointment data
         const appointmentData = {
             doctorId: selectedDoctor,
-            date: date,
-            timeSlot: selectedTimeSlot,
+            date: selectedDate,
+            slotId: selectedSlotId,
             problem: problem,
             symptoms: symptoms,
             userId: userDetails.id,
@@ -118,17 +147,34 @@ const BookAppointmentScreen = ({ route, navigation }) => {
         };
         try {
             // Send the appointment data to your backend API
-            const response = await axios.post('http://192.168.1.14:5000/api/v1/appointments', appointmentData);
+            const response1 = await axios.get('http://192.168.1.14:5000/api/v1/appointments/check', {
+                params: {
+                    doctorId: selectedDoctor,
+                    date: selectedDate,
+                    slotId: selectedSlotId,
+                },
+            });
 
+            if (response1.data.isAvailable === false) {
+                Alert.alert('Error', 'The selected time slot is no longer available. Please choose another slot.');
+                return;
+            }
+            const response = await axios.post('http://192.168.1.14:5000/api/v1/appointments/book', appointmentData);
+            console.log(response, "re")
             // Check the response from the backend
             if (response.status === 201) {
+                updateNewAppointments(response);
                 setDoctors([]);
+                setSelectedLocation('');
+                setSelectedDoctor('');
+                setSelectedDate('');
+                setSelectedTime([]);
                 setTimeSlots([]);
                 setLocations([]);
                 setProblem('');
                 setSymptoms('');
-                Alert.alert('Success', 'Appointment booked successfully!');
-                navigation.goBack(); // Navigate back after booking
+                showToast();
+                navigation.navigate('My-Appointments'); // Navigate back after booking
             } else {
                 setDoctors([]);
                 Alert.alert('Error', 'Failed to book appointment. Please try again.');
@@ -136,6 +182,8 @@ const BookAppointmentScreen = ({ route, navigation }) => {
         } catch (error) {
             console.error('Error booking appointment:', error);
             Alert.alert('Error', 'An error occurred while booking the appointment. Please try again.');
+        } finally {
+            setLoading(false); // Set loading to false after the request is complete
         }
     };
 
@@ -168,39 +216,64 @@ const BookAppointmentScreen = ({ route, navigation }) => {
                     <Picker.Item key={doctor._id} label={doctor.fullName} value={doctor._id} />
                 ))}
             </Picker>
-
-            <Button title="Select Date" onPress={showDatePicker} />
-            {show && (
-                <DateTimePicker
-                    value={date}
-                    mode="date"
-                    display="default"
-                    onChange={onChange}
-                    minimumDate={today}
-                    maximumDate={maxDate}
-                />
-            )}
-            <Text style={styles.dateText}>{date.toLocaleDateString()}</Text>
-
-            <Text style={styles.label}>Select Time Slot:</Text>
+            <View >
+            <HorizontalDatepicker
+                mode="gregorian"
+                startDate={startDate}
+                endDate={endDate}
+                initialSelectedDate={startDate}
+                  onSelectedDateChange={(date) => setSelectedDate(date.toISOString().split('T')[0])}
+                selectedItemWidth={150}
+                unselectedItemWidth={38}
+                itemHeight={38}
+                itemRadius={20}
+                // selectedItemTextStyle={styles.selectedItemTextStyle}
+                // unselectedItemTextStyle={styles.selectedItemTextStyle}
+                selectedItemBackgroundColor="#222831"
+                unselectedItemBackgroundColor="#ececec"
+                flatListContainerStyle={styles.flatListContainerStyle}
+            />
+            </View>
+            <Text style={styles.timing}>Select Time Slot:</Text>
             {timeSlots.length === 0 ? (
             <Text>No time slots available</Text>
         ) : (
-            <Picker
-                selectedValue={selectedTimeSlot}
-                onValueChange={(itemValue) => setSelectedTimeSlot(itemValue)}
-                style={styles.picker}
-                enabled={timeSlots.length > 0}
-            >
-                <Picker.Item label="Select a time slot" value="" />
-                {timeSlots.map((slot, index) => (
-                    <Picker.Item
-                        key={index}
-                        label={`${slot.startTime} -- ${slot.endTime}`}
-                        value={`${slot.startTime} -- ${slot.endTime}`}
-                    />
-                ))}
-            </Picker>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scroll}>
+                {timeSlots.map((item, index) => {
+                    return (
+                        <Pressable
+                            key={index}
+                            onPress={() => setSelectedSlotId(item._id)} // Update selected time
+                            style={{
+                                margin: 10,
+                                height:50,
+                                borderRadius: 7,
+                                padding: 15,
+                                borderColor: selectedSlotId === item._id ? "red" : "gray",
+                                borderWidth: 0.7,
+                            }
+                            } 
+                        >
+                            <Text>{item.startTime}</Text>
+                        </Pressable>
+                    );
+                })}
+            </ScrollView>
+            // <Picker
+            //     selectedValue={selectedTimeSlot}
+            //     onValueChange={(itemValue) => setSelectedTimeSlot(itemValue)}
+            //     style={styles.picker}
+            //     enabled={timeSlots.length > 0}
+            // >
+            //     <Picker.Item label="Select a time slot" value="" />
+            //     {timeSlots.map((slot, index) => (
+            //         <Picker.Item
+            //             key={index}
+            //             label={`${slot.startTime} -- ${slot.endTime}`}
+            //             value={`${slot.startTime} -- ${slot.endTime}`}
+            //         />
+            //     ))}
+            // </Picker>   
         )}
 
             <TextInput
@@ -216,8 +289,14 @@ const BookAppointmentScreen = ({ route, navigation }) => {
                 value={symptoms}
                 onChangeText={setSymptoms}
             />
-
-            <Button title="Book Appointment" onPress={handleSubmit} />
+            <TouchableOpacity style={styles.button} onPress={handleSubmit} disabled={loading}>
+                {loading ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                    <Text style={styles.buttonText}>Book Appointment</Text>
+                )}
+            </TouchableOpacity>
+            
         </View>
     );
 };
@@ -233,8 +312,21 @@ const styles = StyleSheet.create({
         marginTop: 20,
         fontSize: 18,
     },
+    flatListContainerStyle: {
+       borderRadius: 10,
+       backgroundColor: '#fff',
+    },
+    scroll:{
+        maxHeight:100,
+        backgroundColor: '#fff',
+    },
+    timing:{
+        fontSize: 18,
+        fontWeight: '500',
+        marginHorizontal: 10,
+     },
     title: {
-        fontSize: 24,
+        fontSize: 20,
         fontWeight: 'bold',
         marginBottom: 20,
         color: '#2E3A47',
@@ -262,6 +354,18 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         backgroundColor: '#fff',
     },
+    button: {
+        backgroundColor: '#007bff',
+        paddingVertical: 15,
+        borderRadius: 5,
+        alignItems: 'center',
+        marginBottom: 20,
+      },
+      buttonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+      },
 });
 
 export default BookAppointmentScreen;

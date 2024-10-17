@@ -11,10 +11,11 @@ import DisclosureScreen from './screens/DisclosureScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import TabNavigator from './navigation/TabNavigator';
-import { UserProvider } from './contexts/UserProvider';
+import { AppointmentProvider, UserProvider } from './contexts/UserProvider';
 import DoctorDrawerNav from './navigation/DoctorDrawerNav';
 import AdminDrawerNav from './navigation/AdminDrawerNav';
-
+import AboutScreen from './screens/AboutScreen';
+import Toast from 'react-native-toast-message';
 const Stack = createStackNavigator();
 
 // Define the Main Stack Navigator
@@ -43,27 +44,28 @@ const App = () => {
 
     return (
     <UserProvider>
+        <AppointmentProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
       <NavigationContainer>
           {isLoggedIn ? (
             role === 'admin' ? (
-
+                
                 <AdminDrawerNav />
             ) : role === 'doctor' ? (
-              <DoctorDrawerNav /> // Render Doctor-specific navigation
+                <DoctorDrawerNav /> // Render Doctor-specific navigation
             ) : (
-              <TabNavigator /> // Render general navigation for other roles
+                <TabNavigator /> // Render general navigation for other roles
             )
-          ) : (
-              <Stack.Navigator
-                  screenOptions={{
-                    headerStyle: { backgroundColor: '#1878F1' },
-                      headerTintColor: '#fff',
-                      headerTitleStyle: {
-                        fontWeight: '400',
-                      },
-                    }} initialRouteName={role ? 'Login' : 'Disclosure of App Permissions'}
-                    >
+        ) : (
+            <Stack.Navigator
+            screenOptions={{
+                headerStyle: { backgroundColor: '#1878F1' },
+                headerTintColor: '#fff',
+                headerTitleStyle: {
+                    fontWeight: '400',
+                },
+            }} initialRouteName={role ? 'Login' : 'Disclosure of App Permissions'}
+            >
                   <Stack.Screen name="Disclosure of App Permissions" component={DisclosureScreen} />
                   <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false }} />
                   <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
@@ -71,13 +73,16 @@ const App = () => {
                   <Stack.Screen name="OtpScreen" component={OtpScreen} />
                   <Stack.Screen name="TermsConditions" component={TermsConditions} />
                   <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
+                  <Stack.Screen name="About" component={AboutScreen} />
                   <Stack.Screen name="TabNavigator" component={TabNavigator} options={{ headerShown: false }} />
                   <Stack.Screen name="DoctorDrawerNav" component={DoctorDrawerNav} options={{ headerShown: false }} />
                   <Stack.Screen name="AdminDrawerNav" component={AdminDrawerNav} options={{ headerShown: false }} />
               </Stack.Navigator>
           )}
+          <Toast />
       </NavigationContainer>
      </GestureHandlerRootView>
+    </AppointmentProvider>
     </UserProvider>
     );
 };

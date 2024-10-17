@@ -1,9 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Button, FlatList, StyleSheet, Alert, TextInput, Modal, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, Button, FlatList, StyleSheet, Alert, TextInput, TouchableOpacity } from 'react-native';
 import axios from 'axios';
-import { useUser } from '../../contexts/UserProvider';
+import { useNewAppointments, useUser } from '../../contexts/UserProvider';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { Picker } from '@react-native-picker/picker';
 
 const MyAppointmentsScreen = () => {
+    const { newAppointments } = useNewAppointments();
+    const [selectedValue, setSelectedValue] = useState('Confirmed');
+    const inputRef = useRef(null);
     const [appointments, setAppointments] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
@@ -17,24 +22,26 @@ const MyAppointmentsScreen = () => {
     const [patientId, setpatientId] = useState(userDetails.id);
     // Fetch appointments on mount
     console.log(patientId , 'h');
+    const fetchAppointments = async () => {
+        try {
+            const response = await axios.get(`http://192.168.1.14:5000/api/v1/appointments/patient/${patientId}`); // Update to your server URL
+            setAppointments(response.data);
+        } catch (error) {
+            console.error(error);
+            Alert.alert('Error', 'Failed to fetch appointments');
+        }
+    };
     useEffect(() => {
-        const fetchAppointments = async () => {
-            try {
-                const response = await axios.get(`http://192.168.1.14:5000/api/v1/appointments/patient/${patientId}`); // Update to your server URL
-                console.log(response.data);
-                setAppointments(response.data);
-            } catch (error) {
-                console.error(error);
-                Alert.alert('Error', 'Failed to fetch appointments');
-            }
-        };
-
         fetchAppointments();
-    }, []);
+    }, [newAppointments]);
 
     const filteredAppointments = appointments.filter(appointment =>
-        appointment.doctorId.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        appointment.locationId.cityName.toLowerCase().includes(searchTerm.toLowerCase())
+        (appointment.doctorId.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+         appointment.locationId.cityName.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        (selectedValue === 'Confirmed' ? appointment.status === 'Confirmed' :
+         selectedValue === 'Completed' ? appointment.status === 'Completed' :
+         selectedValue === 'Cancelled' ? appointment.status === 'Cancelled' : true)
+        
     );
 
     const handleEditAppointment = (appointment) => {
@@ -70,14 +77,16 @@ const MyAppointmentsScreen = () => {
         }
     };
 
-    const handleCancelAppointment = async (id) => {
-        Alert.alert('Cancel Appointment', `Are you sure you want to cancel appointment ID: ${id}?`, [
+    const handleCancelAppointment = async (appointmentId) => {
+        Alert.alert('Cancel Appointment', `Are you sure you want to cancel appointment ID: ${appointmentId}?`, [
             { text: 'Cancel', style: 'cancel' },
             { text: 'OK', onPress: async () => {
                 try {
-                    await axios.delete(`http://localhost:5000/appointments/${id}`);
-                    setAppointments(prev => prev.filter(appointment => appointment._id !== id));
+                    await axios.patch(`http://192.168.1.14:5000/api/v1/appointments/${appointmentId}`);
+                    setAppointments(prev => prev.filter(appointment => appointment._id !== appointmentId));
+                    fetchAppointments();
                     Alert.alert('Cancelled', 'Your appointment has been cancelled.');
+                    console.log('deleted');
                 } catch (error) {
                     console.error(error);
                     Alert.alert('Error', 'Failed to cancel appointment');
@@ -88,11 +97,11 @@ const MyAppointmentsScreen = () => {
 
     const getStatusColor = (status) => {
         switch (status) {
-            case 'upcoming':
+            case 'Confirmed':
                 return '#4CAF50'; // Green
-            case 'completed':
+            case 'Completed':
                 return '#2196F3'; // Blue
-            case 'cancelled':
+            case 'Cancelled':
                 return '#F44336'; // Red
             default:
                 return '#000';
@@ -108,75 +117,45 @@ const MyAppointmentsScreen = () => {
             <Text>Contact: {item.contact}</Text>
             <Text>Status: {item.status}</Text>
             <View style={styles.buttonContainer}>
-                <Button title="Edit" onPress={() => handleEditAppointment(item)} />
+            {item.status === 'Confirmed' && (
                 <Button title="Cancel" color="#F44336" onPress={() => handleCancelAppointment(item._id)} />
+            )}
             </View>
         </View>
     );
 
     return (
         <View style={styles.container}>
+            <View style={styles.searchCard}>
+            <TouchableOpacity onPress={() => inputRef.current.focus()}>
+                    <Icon name={'search'} size={30} color="#000" style={styles.icon} />
+                </TouchableOpacity>
             <TextInput
+                ref={inputRef}
                 style={styles.searchInput}
                 placeholder="Search by doctor or city"
                 value={searchTerm}
                 onChangeText={setSearchTerm}
             />
+            </View>
+            <View style={styles.dropdownContainer}>
+                <Text style={styles.label}>Total Count: {filteredAppointments.length}</Text>
+                <Picker
+                    selectedValue={selectedValue}
+                    style={styles.dropdown}
+                    onValueChange={(itemValue) => setSelectedValue(itemValue)}
+                >
+                    <Picker.Item label="Confirmed" value="Confirmed" />
+                    <Picker.Item label="Completed" value="Completed" />
+                    <Picker.Item label="Cancelled" value="Cancelled" />
+                </Picker>
+            </View>
             <FlatList
                 data={filteredAppointments}
                 renderItem={renderItem}
                 keyExtractor={item => item._id} // MongoDB ID is used
                 showsVerticalScrollIndicator={false}
             />
-
-            {/* Modal for editing appointment */}
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => {
-                    setModalVisible(!modalVisible);
-                }}>
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Edit Appointment</Text>
-                        <TextInput
-                            style={styles.modalInput}
-                            placeholder="Doctor"
-                            value={updatedDoctor}
-                            onChangeText={setUpdatedDoctor}
-                        />
-                        <TextInput
-                            style={styles.modalInput}
-                            placeholder="Date"
-                            value={updatedDate}
-                            onChangeText={setUpdatedDate}
-                        />
-                        <TextInput
-                            style={styles.modalInput}
-                            placeholder="Time"
-                            value={updatedTime}
-                            onChangeText={setUpdatedTime}
-                        />
-                        <TextInput
-                            style={styles.modalInput}
-                            placeholder="Location"
-                            value={updatedLocation}
-                            onChangeText={setUpdatedLocation}
-                        />
-                        <TextInput
-                            style={styles.modalInput}
-                            placeholder="Contact"
-                            value={updatedContact}
-                            onChangeText={setUpdatedContact}
-                        />
-                        <View style={styles.modalButtonContainer}>
-                            <Button title="Save" onPress={handleUpdateAppointment} />
-                            <Button title="Cancel" onPress={() => setModalVisible(false)} color="#F44336" />
-                        </View>
-                    </View>
-                </View>
-            </Modal>
         </View>
     );
 };
@@ -188,14 +167,42 @@ const styles = StyleSheet.create({
         backgroundColor: '#F7F9FC',
     },
     searchInput: {
+        width: '90%',
         height: 50,
-        borderColor: '#ddd',
-        borderWidth: 1,
-        borderRadius: 5,
         padding: 10,
-        marginBottom: 15,
+    },
+    searchCard:{
+        borderColor: '#ddd',
+        borderWidth: 2,
+        borderRadius: 5,
+        display:'flex',
+        flexDirection:'row',
+        justifyContent:'center',
+        height: 50,
+        alignItems:'center',
+        marginBottom:10,
         backgroundColor: '#fff',
     },
+    icon: {
+        height: 50,
+        padding: 10,
+    },
+
+    dropdownContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 5,
+    },
+    label: {
+        fontSize: 18,
+    },
+    dropdown: {
+        height: 50,
+        width: '35%',
+    },
+
     appointmentCard: {
         padding: 15,
         marginBottom: 10,
@@ -210,7 +217,7 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-end',
         marginTop: 10,
     },
     modalContainer: {

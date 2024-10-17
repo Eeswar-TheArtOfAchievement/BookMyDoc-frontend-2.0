@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert , Image, Dimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ActivityIndicator } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
 const LoginScreen = ({navigation}) => {
   const [email, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
     if (email && password) {
+      setLoading(true);
         try {
             const response = await fetch('http://192.168.1.14:5000/api/v1/auth/login', {
                 method: 'POST',
@@ -37,6 +40,8 @@ const LoginScreen = ({navigation}) => {
         } catch (error) {
             console.error('Login error:', error);
             Alert.alert('Error', 'Something went wrong in login route');
+        } finally {
+            setLoading(false); // Set loading to false after the request is complete
         }
     } else {
         Alert.alert('Error', 'Please enter both email and password.');
@@ -66,9 +71,14 @@ const LoginScreen = ({navigation}) => {
           autoCapitalize="none"
         />
 
-        <TouchableOpacity style={styles.button} onPress={handleLogin} >
-          <Text style={styles.buttonText}>Login</Text>
-        </TouchableOpacity>
+       <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
+    {loading ? (
+        <ActivityIndicator size="small" color="#fff" />
+    ) : (
+        <Text style={styles.buttonText}>Login</Text>
+    )}
+ </TouchableOpacity>
+
       </View>
 
       {/* Separate TouchableOpacity for the Sign-Up button */}

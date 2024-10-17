@@ -3,16 +3,41 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useUser } from '../../contexts/UserProvider';
 import Swiper from 'react-native-swiper';
-
-import Icon from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { FlatList } from 'react-native-gesture-handler';
+import Iconi from 'react-native-vector-icons/Ionicons';
+import { Picker } from '@react-native-picker/picker';
+import axios from 'axios';
 const HomeScreen = ({ navigation }) => {
 
+    const [locations, setLocations] = useState([]);
+    const [selectedLocation, setSelectedLocation] = useState('');
     const {userDetails, updateUserDetails } = useUser();
     const [formattedDateOfBirth, setFormattedDateOfBirth] = useState(''); // State to hold formatted date
     const [doctorDetails, setDoctorDetails] = useState([]); // State to hold formatted date
     const [visible, setVisible] = useState(false);
+    const [selectedCity, setSelectedCity] = useState('Hyderabad');
 
+
+     useEffect(() => {
+        const fetchLocations = async () => {
+            try {
+                const response = await axios.get('http://192.168.1.14:5000/api/v1/doctors/locations');
+                setLocations(response.data);
+                const savedLocation = await AsyncStorage.getItem('selectedLocation');
+                if (savedLocation) {
+                    setSelectedLocation(savedLocation);
+                }
+            } catch (error) {
+                console.error('Error fetching locations:', error);
+                Alert.alert('Error', 'Could not load locations.');
+            }
+        };
+
+        fetchLocations();
+    }, []);
+
+    
     const doctorsSpecializations = [
         { id: '1', name: 'Cardiologist', image: require('../../assets/Cardiologist.png') },
         { id: '2', name: 'Dermatologist', image: require('../../assets/Dermatologist.png') },
@@ -31,6 +56,28 @@ const HomeScreen = ({ navigation }) => {
           <Text style={styles.itemText}>{item.name}</Text>
         </View>
       );
+
+      const renderDoctorCard = ({ item }) => (
+        <View style={styles.doctorCard}>
+            <Image
+                source={{ uri: 'https://picsum.photos/200/300' }}
+                style={styles.image}
+                resizeMode="cover"
+            />
+            <View>
+                <Text style={styles.doctorName}>{item.fullName}</Text>
+                <Text numberOfLines={1} ellipsizeMode="tail" style={styles.doctorSpecialty}>
+                    {item.specializations[0]?.specializationName || 'No Specialization'}
+                </Text>
+                <Text style={styles.doctorSpecialty}> ⭐{item.rating} </Text>
+            </View>
+            <TouchableOpacity
+                style={styles.button}
+                onPress={() => navigation.navigate('Book-Appointment', { doctorDetails: item })}>
+                <Text style={styles.buttonText}>Book Now</Text>
+            </TouchableOpacity>
+        </View>
+    );
   useEffect(() => {
     const timer = setTimeout(() => {
       setVisible(false);
@@ -53,8 +100,12 @@ const HomeScreen = ({ navigation }) => {
                             'Content-Type': 'application/json',
                         },
                     });
+                    if (userResponse.status === 429) {
+                        Alert.alert('Error', 'Too many requests. Please try again later.');
+                        return;
+                    }
+                    console.log(userResponse);
                     const userData = await userResponse.json();
-
                         if (userResponse.ok) {
                         // Decode and format the dateOfBirth
                         const dateOfBirth = new Date(userData.dateOfBirth); // Convert to Date object
@@ -67,7 +118,6 @@ const HomeScreen = ({ navigation }) => {
 
                         // Update the user details in context
                         updateUserDetails(tempDetails);
-
                         // Set the formatted date for rendering
                         setFormattedDateOfBirth(formattedDate);
                             if (tempDetails && userData.fullName && userData.email) {
@@ -99,10 +149,30 @@ const HomeScreen = ({ navigation }) => {
                 Alert.alert('Error', 'Could not load locations.');
             });
     }, []);
+    const handleLocationChange = async (itemValue) => {
+        setSelectedLocation(itemValue);
+        // Save selected location to AsyncStorage
+        await AsyncStorage.setItem('selectedLocation', itemValue);
+    };
     return (
-        <ScrollView style={styles.container}>
-      {visible && <Text style={styles.title}>Welcome {userDetails.fullName}</Text>}
-      <Text style={styles.subtitle}>Book your appointment with our experienced doctors</Text>
+        <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+            <View style={styles.locationContainer}>
+                <View>
+                    <Icon name='map-marker' size={30} color="#007bff" />
+                </View>
+                <View>
+                <Picker
+                selectedValue={selectedLocation}
+                onValueChange={handleLocationChange}
+                style={styles.picker}
+            >
+                <Picker.Item label="Select a location" value="" />
+                {locations.map((location) => (
+                    <Picker.Item key={location._id} label={location.cityName} value={location._id} />
+                ))}
+            </Picker>
+                </View>
+            </View>
             <Swiper autoplay={true} autoplayTimeout={4} style={styles.swiperContainer}
             dotColor="#ccc" activeDotColor="red"
             >
@@ -123,28 +193,14 @@ const HomeScreen = ({ navigation }) => {
                 <Text style={styles.headText}>Top Doctors</Text>
                 <Text style={styles.subText}>See All</Text>
             </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.doctorList}>
-                {doctorDetails.map((doctorDetails , index) => (
-                    <View key={index} style={styles.doctorCard}>
-                        <Image
-                        source={{ uri: 'https://picsum.photos/200/300 ' }}
-                        style={styles.image}
-                        resizeMode="cover"
-                        />
-                        <View>
-                        <Text style={styles.doctorName}>{doctorDetails.fullName}</Text>
-                        <Text numberOfLines={1} ellipsizeMode="tail"  style={styles.doctorSpecialty}>{doctorDetails.specializations[0]?.specializationName || 'No Specialization'}</Text>
-                        <Text style={styles.doctorSpecialty}> ⭐{doctorDetails.rating} </Text>
-                        </View>
-                        <TouchableOpacity
-                            style={styles.button}
-                            onPress={() => navigation.navigate('Book-Appointment', { doctorDetails: doctorDetails })}>
-                            <Text style={styles.buttonText}>Book Now</Text>
-                        </TouchableOpacity>
-                    </View>
-                ))}
-            </ScrollView>
-
+            <FlatList
+                data={doctorDetails}
+                renderItem={renderDoctorCard}
+                keyExtractor={(item, index) => index.toString()}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.doctorList}
+            />
             {/* <TouchableOpacity style={styles.appointmentButton} onPress={() => navigation.navigate('My-Appointments')}>
                 <Text style={styles.appointmentButtonText}>View My Appointments</Text>
             </TouchableOpacity> */}
@@ -156,8 +212,6 @@ const HomeScreen = ({ navigation }) => {
                 numColumns={2} // Create a 2-column layout
                 style={styles.grid}
                 />
-
-
             <View style={styles.footerCard}>
                 <Text style={styles.text}>Our community of doctors and patients drive us to create technologies for better and affordable healthcare</Text>
                 {/* <Text style={styles.subtitle}>We are committed to providing high-quality, affordable, and accessible healthcare services.</Text> */}
@@ -166,24 +220,24 @@ const HomeScreen = ({ navigation }) => {
                 <View >
                     <View style={styles.aboutContainer}>
                         <View style={styles.aboutContainer1}>
-                            <Icon name="person" size={30} color="#1fb1bd" />
+                            <Iconi name="person" size={30} color="#1fb1bd" />
                             <Text style={styles.subText}>Our Users</Text>
                             <Text style={styles.text}>30 Crores</Text>
                         </View>
                         <View style={styles.aboutContainer1}>
-                            <Icon name="bag-add" size={30} color="#1fb1bd" />
+                            <Iconi name="bag-add" size={30} color="#1fb1bd" />
                             <Text style={styles.subText}>Our Doctors</Text>
                             <Text style={styles.text}>1 Lakh</Text>
                         </View>
                     </View>
                     <View style={styles.aboutContainer}>
                         <View style={styles.aboutContainer1}>
-                        <Icon name="add-circle" size={30} color="#1fb1bd" />
+                        <Iconi name="add-circle" size={30} color="#1fb1bd" />
                         <Text style={styles.subText}>Hospitals</Text>
                         <Text style={styles.text}>20,000</Text>
                         </View>
                         <View style={styles.aboutContainer1}>
-                        <Icon name="chatbox-ellipses" size={30} color="#1fb1bd" />
+                        <Iconi name="chatbox-ellipses" size={30} color="#1fb1bd" />
                         <Text style={styles.subText}>Patient Stories</Text>
                         <Text style={styles.text}>40 Lakh</Text>
                         </View>
@@ -197,7 +251,7 @@ const HomeScreen = ({ navigation }) => {
                     <Text style={styles.subText2}>Our vision is to help mankind live healthier, longer lives by making quality healthcare accessible, affordable and convenient</Text>
                     <View style={styles.subText1}>
                         <Text style={styles.subText}>Made with</Text>
-                        <Icon name="heart" size={30} color="#1fb1bd" />
+                        <Iconi name="heart" size={30} color="#1fb1bd" />
                         <Text style={styles.subText}>in Savisettipalli</Text>
                     </View>
                 </View>
@@ -214,8 +268,22 @@ const styles = StyleSheet.create({
         paddingTop:10,
         paddingBottom:20,
     },
+    locationContainer:{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap:10,
+        marginBottom: 10,
+    },
     swiperContainer:{
         height:250,
+    },
+    picker: {
+        height: 50,
+        width: 200,
+        backgroundColor: '#f7f9fc',
+        borderRadius: 5,
+        borderColor: '#ddd',
+        borderWidth: 1,
     },
     slider:{
         flex:1,
@@ -266,7 +334,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     aboutContainer1:{
-        width:'50%',
+        width:'53%',
     },
     banner: {
         width: '100%',
@@ -309,7 +377,6 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     doctorList: {
-        
     },
     image :{
         width: 100,
@@ -363,5 +430,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
 });
+
 
 export default HomeScreen;
