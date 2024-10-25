@@ -8,6 +8,7 @@ import { FlatList } from 'react-native-gesture-handler';
 import Iconi from 'react-native-vector-icons/Ionicons';
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
+import { CommonActions } from '@react-navigation/native';
 const HomeScreen = ({ navigation }) => {
 
     const [locations, setLocations] = useState([]);
@@ -58,6 +59,7 @@ const HomeScreen = ({ navigation }) => {
       );
 
       const renderDoctorCard = ({ item }) => (
+                
         <View style={styles.doctorCard}>
             <Image
                 source={{ uri: 'https://picsum.photos/200/300' }}
@@ -104,8 +106,15 @@ const HomeScreen = ({ navigation }) => {
                         Alert.alert('Error', 'Too many requests. Please try again later.');
                         return;
                     }
+                    if (userResponse.status === 401) {
+                        Alert.alert('Session Expired', 'Please log in again.');
+                        await AsyncStorage.removeItem('token');
+                        navigation.navigate('Login');
+                        return;
+                    }
                     console.log(userResponse);
                     const userData = await userResponse.json();
+                   
                         if (userResponse.ok) {
                         // Decode and format the dateOfBirth
                         const dateOfBirth = new Date(userData.dateOfBirth); // Convert to Date object
@@ -209,7 +218,9 @@ const HomeScreen = ({ navigation }) => {
                 data={doctorsSpecializations}
                 renderItem={renderItem}
                 keyExtractor={item => item.id}
-                numColumns={2} // Create a 2-column layout
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                // numColumns={2}
                 style={styles.grid}
                 />
             <View style={styles.footerCard}>
@@ -290,7 +301,8 @@ const styles = StyleSheet.create({
         borderRadius:20,
     },
     grid:{
-        flex: 1,
+        flex: 0,
+        flexDirection: 'row',
         padding: 10,
     },
     itemContainer: {
@@ -395,8 +407,8 @@ const styles = StyleSheet.create({
         elevation: 3,
         width: 155,
         alignItems: 'center',
-        shadowOpacity: 0.25, // Opacity of the shadow
-    shadowRadius: 3.5,   // Radius of the shadow
+        shadowOpacity: 0.25,
+    shadowRadius: 3.5,
     },
 
     doctorName: {
