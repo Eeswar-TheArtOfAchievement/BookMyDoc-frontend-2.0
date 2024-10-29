@@ -10,7 +10,9 @@ import axios from 'axios';
 import Toast from 'react-native-toast-message';
 const BookAppointmentScreen = ({ route, navigation }) => {
     const { updateNewAppointments } = useNewAppointments();
+    const { userDetails , updateUserDetails } = useUser();
     
+
     const [locations, setLocations] = useState([]);
     const [selectedLocation, setSelectedLocation] = useState('');
     const [doctors, setDoctors] = useState([]);
@@ -19,12 +21,11 @@ const BookAppointmentScreen = ({ route, navigation }) => {
     const [symptoms, setSymptoms] = useState('');
     const [timeSlots, setTimeSlots] = useState([]);
     const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
-    const { userDetails , updateUserDetails } = useUser();
     const [loading, setLoading] = useState(false);
-
     const [selectedDate, setSelectedDate] =useState('');
     const [selectedTime, setSelectedTime] = useState([]);
     const [selectedSlotId, setSelectedSlotId] = useState('');
+    const [slotTime, setSlotTime] = useState('');
     const [location, setLocation] = useState('');
     const [customerLocation, setCustomerLocation] = useState('')
     const tomorrow = new Date();
@@ -43,9 +44,8 @@ const BookAppointmentScreen = ({ route, navigation }) => {
         //     width: 400, // Customize width
         //     backgroundColor: '#000', // Customize background color
         // },
-
         });
-      }
+      };
     const [date, setDate] = useState(new Date());
     const [show, setShow] = useState(false);
     // useEffect(() => {
@@ -103,7 +103,7 @@ const BookAppointmentScreen = ({ route, navigation }) => {
     }, [selectedLocation]);
 
     useEffect(() => {
-        if (selectedDate && selectedDoctor) {
+        if (selectedDate || selectedDoctor) {
             setTimeSlots([]);
             setSelectedTime([]);
             const fetchTimeSlots = async () => {
@@ -114,6 +114,7 @@ const BookAppointmentScreen = ({ route, navigation }) => {
                             doctorId: selectedDoctor,
                         },
                     });
+                    console.log(response.data);
                     setTimeSlots(response.data); // Set the time slots from response
                 } catch (error) {
                     console.error('Error fetching time slots:', error);
@@ -124,7 +125,7 @@ const BookAppointmentScreen = ({ route, navigation }) => {
         } else {
             setTimeSlots([]);
         }
-    }, [selectedDate, selectedDoctor]);
+    }, [selectedDate , selectedDoctor]);
 
     const handleSubmit = async () => {
       setLoading(true);
@@ -139,7 +140,7 @@ const BookAppointmentScreen = ({ route, navigation }) => {
         const appointmentData = {
             doctorId: selectedDoctor,
             date: selectedDate,
-            slotId: selectedSlotId,
+            slotTime: slotTime,
             problem: problem,
             symptoms: symptoms,
             userId: userDetails.id,
@@ -221,8 +222,8 @@ const BookAppointmentScreen = ({ route, navigation }) => {
                 mode="gregorian"
                 startDate={startDate}
                 endDate={endDate}
-                initialSelectedDate={startDate}
-                  onSelectedDateChange={(date) => setSelectedDate(date.toISOString().split('T')[0])}
+                // initialSelectedDate={startDate}
+                onSelectedDateChange={(date) => setSelectedDate(date.toISOString().split('T')[0])}
                 selectedItemWidth={150}
                 unselectedItemWidth={38}
                 itemHeight={38}
@@ -243,7 +244,7 @@ const BookAppointmentScreen = ({ route, navigation }) => {
                     return (
                         <Pressable
                             key={index}
-                            onPress={() => setSelectedSlotId(item._id)} // Update selected time
+                            onPress={() => setSelectedSlotId(item._id),  setSlotTime(item.startTime)} // Update selected time
                             style={{
                                 margin: 10,
                                 height:50,
@@ -369,3 +370,5 @@ const styles = StyleSheet.create({
 });
 
 export default BookAppointmentScreen;
+
+

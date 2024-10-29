@@ -83,6 +83,7 @@ const App = () => {
       </NavigationContainer>
      </GestureHandlerRootView>
     </AppointmentProvider>
+    
     </UserProvider>
     );
 };

@@ -1,27 +1,42 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet, TextInput, Alert, TouchableOpacity, Modal, Image  } from 'react-native';
-import { launchImageLibrary } from 'react-native-image-picker';
+import React, {useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  Button,
+  StyleSheet,
+  TextInput,
+  Alert,
+  TouchableOpacity,
+  Modal,
+  Image,
+  ActivityIndicator,
+} from 'react-native';
+import {launchImageLibrary} from 'react-native-image-picker';
 import axios from 'axios';
-import { useAdmin } from '../../contexts/UserProvider';
-import { Picker } from '@react-native-picker/picker';
+import {useAdmin, useUser} from '../../contexts/UserProvider';
+import {Picker} from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/FontAwesome';
-const AdminProfile = ({navigation}) => {
-    const { adminDetails , updateAdminDetails } = useAdmin();
-    const [modalVisible, setModalVisible] = useState(false);
-    const [tempDetails, setTempDetails] = useState(adminDetails);
-    const [image, setImage] = useState( null);
-    useEffect(() => {
-        setTempDetails(adminDetails);
-    }, [adminDetails]);
+import { CommonActions } from '@react-navigation/native';
+
+const ProfileScreen = ({navigation}) => {
+  const {adminDetails, updateAdminDetails} = useAdmin();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [tempDetails, setTempDetails] = useState(adminDetails);
+  const [image, setImage] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  useEffect(() => {
+    setTempDetails(adminDetails);
+  }, [adminDetails]);
 
   const pickImage = async () => {
     const options = {
       mediaType: 'photo',
-      includeBase64: true, // If you want to upload base64
+      includeBase64: true,
     };
 
-    launchImageLibrary(options, (response) => {
+    launchImageLibrary(options, response => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
       } else if (response.error) {
@@ -35,309 +50,389 @@ const AdminProfile = ({navigation}) => {
     });
   };
 
-  const uploadImage = async (base664Image) => {
+  const uploadImage = async base64Image => {
     const userId = adminDetails.id;
-
     try {
-      const response = await axios.post('http://192.168.1.14:5000/api/v1/auth/image', {
-        userId, image :base664Image,
+      await axios.post('http://192.168.1.14:5000/api/v1/auth/image', {
+        userId,
+        image: base64Image,
       });
     } catch (error) {
       console.error('Error uploading image:', error);
     }
   };
+
   const handleUpdateDetails = async () => {
+    setIsLoading(true);
     try {
+      const formattedDate = new Date(
+        tempDetails.dateOfBirth.split('/').reverse().join('-'),
+      );
+      const token = await AsyncStorage.getItem('token');
 
-        const formattedDate = new Date(tempDetails.dateOfBirth.split('/').reverse().join('-'));
-        const token = await AsyncStorage.getItem('token');
+      await axios.patch(
+        `http://192.168.1.14:5000/api/v1/auth/update/${adminDetails.id}`,
+        {
+          ...tempDetails,
+          dateOfBirth: formattedDate.toISOString(),
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
 
-        const response = await axios.patch(`http://192.168.1.14:5000/api/v1/admin/update/${adminDetails.id}`, {
-            ...tempDetails,
-            dateOfBirth: formattedDate.toISOString(),
-        }, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-            },
-        });
-        // If successful, update the context and show a success message
-        updateAdminDetails(tempDetails);
-        setModalVisible(false);
-
-        Alert.alert('Successful ', 'Admin details have been updated successfully in both');
+      updateUserDetails(tempDetails);
+      setModalVisible(false);
+      Alert.alert('Successful', 'User details have been updated successfully.');
     } catch (error) {
-        console.error('Error updating admin details:', error);
-        Alert.alert('Update Failed', 'An error occurred while updating admin details.');
+      console.error('Error updating user details:', error);
+      Alert.alert(
+        'Update Failed',
+        'An error occurred while updating user details.',
+      );
+    } finally {
+      setIsLoading(false);
     }
-};
+  };
 
-    const handleSignOut = async () => {
-        Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'OK',
-                onPress: async () => {
-                    try {
-                        // Clear AsyncStorage
-                        await AsyncStorage.removeItem('token'); // Adjust key as necessary
-                        Alert.alert('Signed Out', 'You have been signed out successfully.');
-                        // Reset the navigation stack and navigate to the login screen
-                        navigation.reset({
-                            index: 0,
-                            routes: [{ name: 'Login' }],
-                        });
-                        // navigation.navigate('Login');
-                    } catch (error) {
-                        console.error('Error clearing AsyncStorage:', error);
-                    }
-                },
-            },
-        ]);
-    };
+  const handleSignOut = async () => {
+    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
+      {text: 'Cancel', style: 'cancel'},
+      {
+        text: 'OK',
+        onPress: async () => {
+          try {
+            await AsyncStorage.removeItem('token');
+            Alert.alert('Signed Out', 'You have been signed out successfully.');
+            navigation.dispatch(
+                CommonActions.reset({
+                  index: 0,
+                  routes: [{ name: 'Login' }],
+                })
+              );
+          } catch (error) {
+            console.error('Error clearing AsyncStorage:', error);
+          }
+        },
+      },
+    ]);
+  };
 
-    return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Profile</Text>
-            <View style={styles.card}>
-                <View style={styles.photoContainer}>
-                    <View style={styles.nameContainer}>
-                        <Text style={styles.label}>Full Name:</Text>
-                        <Text style={styles.value}>{adminDetails.fullName}</Text>
-                    </View>
-                    <View style={styles.container1}>
-                    {adminDetails.profileImage ? (
-                        <Image
-                                source={{ uri: `data:image/jpeg;base64,${adminDetails.profileImage}` }}
-                                style={styles.image} // Adjust size as needed
-                            />
-                        ) : (
-                            <Icon
-                                name="user-circle" // You can change the icon name
-                                size={100} // Adjust the size of the icon
-                                color="#ccc" // Change color as needed
-                            />
-                        )}
-                        <Button title="upload image" onPress={pickImage} />
-                    </View>
-                </View>
-                <Text style={styles.label}>Email:</Text>
-                <Text style={styles.value}>{adminDetails.email}</Text>
-                <Text style={styles.label}>Phone:</Text>
-                <Text style={styles.value}>{adminDetails.phone ? adminDetails.phone : '-  -  -  -  -  -'}</Text>
-                <Text style={styles.label}>Gender:</Text>
-                <Text style={styles.value}>{adminDetails.gender ? adminDetails.gender : '-  -  -  -  -  -'}</Text>
-                <Text style={styles.label}>DateOfBirth:</Text>
-                <Text style={styles.value}>{adminDetails.dateOfBirth ? adminDetails.dateOfBirth : '-  -  -  -  -  -'}</Text>
-                <Text style={styles.label}>Location:</Text>
-                <Text style={styles.value}>{adminDetails.location ? adminDetails.location : '-  -  -  -  -  -'}</Text>
+  return (
+    <View style={styles.container}>
+      <View style={styles.card}>
+        <View style={styles.photoContainer}>
+          {adminDetails.profileImage ? (
+            <View style={styles.imageContainer}>
+              <Image
+                source={{
+                  uri: `data:image/jpeg;base64,${adminDetails.profileImage}`,
+                }}
+                style={styles.image}
+              />
+              <TouchableOpacity style={styles.editIcon} onPress={pickImage}>
+                <Icon name="edit" size={24} color="#fff" />
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles.button} onPress={() => setModalVisible(true)}>
-                <Text style={styles.buttonText}>Update Profile</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={handleSignOut}>
-                <Text style={styles.buttonText}>Sign Out</Text>
-            </TouchableOpacity>
-            {/* <TouchableOpacity style={styles.link} onPress={() => navigation.navigate('MyAppointments')}>
-                <Text style={styles.linkText}>View Appointment History</Text>
-            </TouchableOpacity> */}
-
-            {/* Modal for updating user details */}
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => setModalVisible(false)}
-            >
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalCard}>
-                        <Text style={styles.modalTitle}>Update Profile</Text>
-                        <TextInput
-                            style={styles.modalInput}
-                            placeholder="Full Name"
-                            value={tempDetails.fullName}
-                            onChangeText={text => setTempDetails({ ...tempDetails, fullName: text })}
-                        />
-                        <TextInput
-                            style={styles.modalInput}
-                            placeholder="Email"
-                            value={tempDetails.email}
-                            editable={false} // Email is not editable
-                        />
-                        <TextInput
-                            style={styles.modalInput}
-                            placeholder="Phone"
-                            value={tempDetails.phone}
-                            onChangeText={text => {
-                            const numericText = text.replace(/[^0-9]/g, '').slice(0, 10); // Remove non-numeric characters
-                            setTempDetails({ ...tempDetails, phone: numericText });}}
-                            keyboardType="numeric"
-                        />
-                        <TextInput
-                            style={styles.modalInput}
-                            placeholder="MM/DD/YYYY"
-                            value={tempDetails.dateOfBirth}
-                            onChangeText={text => {
-                                const numericText = text.replace(/[^0-9/]/g, '').slice(0, 10); // Remove non-numeric characters
-                                setTempDetails({ ...tempDetails, dateOfBirth: numericText }); // Update state with the filtered text
-                            }}
-                            keyboardType="numeric"
-                        />
-                        <View style={styles.modalInputContainer}>
-                            <Text style={styles.label}>Gender:</Text>
-                            <Picker
-                                selectedValue={tempDetails.gender}
-                                style={styles.picker}
-                                onValueChange={(itemValue) => setTempDetails({ ...tempDetails, gender: itemValue })}
-                            >
-                                <Picker.Item label="Male" value="male" />
-                                <Picker.Item label="Female" value="female" />
-                                <Picker.Item label="LGBT" value="lgbt" />
-                                <Picker.Item label="Rather not say" value="not_say" />
-                            </Picker>
-                        </View>
-                        <TextInput
-                            style={styles.modalInput}
-                            placeholder="Location"
-                            value={tempDetails.location}
-                            onChangeText={text => setTempDetails({ ...tempDetails, location: text })}
-                        />
-
-                        <View style={styles.modalButtonContainer}>
-                            <Button title="Save" onPress={handleUpdateDetails} />
-                            <Button title="Cancel" color="#F44336" onPress={() => setModalVisible(false)} />
-                        </View>
-                    </View>
-                </View>
-            </Modal>
+          ) : (
+            <View style={styles.imageContainer}>
+              <Icon name="user-circle" size={100} color="#ccc" />
+              <TouchableOpacity style={styles.editIcon} onPress={pickImage}>
+                <Icon name="edit" size={24} color="#fff" />
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
-    );
+        <View style={styles.infoContainer}>
+          {[
+            {icon: 'user', label: 'Full Name', value: adminDetails.fullName},
+            {icon: 'envelope', label: 'Email', value: adminDetails.email},
+            {
+              icon: 'phone',
+              label: 'Phone',
+              value: adminDetails.phone || '- - - - - -',
+            },
+            {
+              icon: 'genderless',
+              label: 'Gender',
+              value: adminDetails.gender || '- - - - - -',
+            },
+            {
+              icon: 'calendar',
+              label: 'DOB',
+              value: adminDetails.dateOfBirth || '- - - - - -',
+            },
+            {
+              icon: 'map-marker',
+              label: 'Location',
+              value: adminDetails.location || '- - - - - -',
+            },
+          ].map((info, index) => (
+            <View style={styles.infoRow} key={index}>
+              <View style={styles.info1}>
+                <Icon name={info.icon} size={20} color="#007bff" />
+              </View>
+              <View style={styles.info2}>
+                <Text style={styles.label}>{info.label}:</Text>
+              </View>
+              <View style={styles.info3}>
+                <Text style={styles.value}>{info.value}</Text>
+              </View>
+            </View>
+          ))}
+        </View>
+      </View>
+      <View style={styles.row}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => setModalVisible(true)}>
+          <Icon name="edit" size={20} color="#fff" />
+          <Text style={styles.buttonText}> Update Profile</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleSignOut}>
+          <Icon name="sign-out" size={20} color="#fff" />
+          <Text style={styles.buttonText}> Sign Out</Text>
+        </TouchableOpacity>
+      </View>
+      <TouchableOpacity
+        style={styles.link}
+        onPress={() => navigation.navigate('My-Appointments')}>
+        <Text style={styles.linkText}>View Appointment History</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.link}
+        onPress={() => navigation.navigate('About')}>
+        <Text style={styles.linkText}>About BookMyDoc</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.link}>
+        <Text style={styles.linkText}>version 0.001</Text>
+      </TouchableOpacity>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Update Profile</Text>
+            <TextInput
+              style={[styles.modalInput, isFocused && styles.focusedInput]}
+              placeholder="Full Name"
+              value={tempDetails.fullName}
+              onChangeText={text =>
+                setTempDetails({...tempDetails, fullName: text})
+              }
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+            />
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Email"
+              value={tempDetails.email}
+              editable={false}
+            />
+            <TextInput
+              style={[styles.modalInput, isFocused && styles.focusedInput]}
+              placeholder="Phone"
+              value={tempDetails.phone}
+              onChangeText={text => {
+                const numericText = text.replace(/[^0-9]/g, '').slice(0, 10);
+                setTempDetails({...tempDetails, phone: numericText});
+              }}
+              keyboardType="numeric"
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+            />
+            <TextInput
+              style={[styles.modalInput, isFocused && styles.focusedInput]}
+              placeholder="MM/DD/YYYY"
+              value={tempDetails.dateOfBirth}
+              onChangeText={text => {
+                const numericText = text.replace(/[^0-9/]/g, '').slice(0, 10);
+                setTempDetails({...tempDetails, dateOfBirth: numericText});
+              }}
+              keyboardType="numeric"
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+            />
+            <View style={styles.pickerContainer}>
+              <Text style={styles.label}>Gender:</Text>
+              <Picker
+                selectedValue={tempDetails.gender}
+                style={styles.picker}
+                onValueChange={itemValue =>
+                  setTempDetails({...tempDetails, gender: itemValue})
+                }>
+                <Picker.Item label="select" />
+                <Picker.Item label="Male" value="male" />
+                <Picker.Item label="Female" value="female" />
+                <Picker.Item label="LGBT" value="lgbt" />
+                <Picker.Item label="Rather not say" value="not_say" />
+              </Picker>
+            </View>
+            <TextInput
+              style={[styles.modalInput, isFocused && styles.focusedInput]}
+              placeholder="Location"
+              value={tempDetails.location}
+              onChangeText={text =>
+                setTempDetails({...tempDetails, location: text})
+              }
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+            />
+            <View style={styles.modalButtonContainer}>
+              <Button title="Save" onPress={handleUpdateDetails} />
+              <Button
+                title="Cancel"
+                color="#F44336"
+                onPress={() => setModalVisible(false)}
+              />
+            </View>
+            {isLoading && <ActivityIndicator size="small" color="#007bff" />}
+          </View>
+        </View>
+      </Modal>
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
-    modalInputContainer: {
-        marginBottom: 15,
-    },
-    picker: {
-        height: 50,
-        width: '100%',
-        borderColor: '#ddd',
-        borderWidth: 1,
-        borderRadius: 5,
-        backgroundColor: '#f9f9f9',
-    },
-    container: {
-        flex: 1,
-        padding: 20,
-        backgroundColor: '#F7F9FC',
-    },
-    container1: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-      },
-      image: {
-        width: 100,
-        height: 100,
-        borderRadius:50,
-      },
-    nameContainer:{
-        flex: 1,
-    },
-    photoContainer:{
-        flexDirection:'row',
-        alignItems: 'center',
-        justifyContent: 'space-evenly',
-    },
-    profileImage: {
-        width: 50, // Set the desired width
-        height: 50, // Set the desired height
-        borderRadius: 25, // To make it circular
-        marginLeft: 10, // Add some spacing
-    },
-    title: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        marginBottom: 20,
-        textAlign: 'center',
-    },
-    card: {
-        padding: 15,
-        borderRadius: 10,
-        backgroundColor: '#fff',
-        marginBottom: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 5,
-        elevation: 3,
-    },
-    label: {
-        fontSize: 16,
-        marginBottom: 5,
-        fontWeight: '600',
-    },
-    value: {
-        fontSize: 16,
-        marginBottom: 15,
-        color: '#333',
-    },
-    button: {
-        backgroundColor: '#007bff',
-        borderRadius: 5,
-        padding: 15,
-        marginBottom: 10,
-        alignItems: 'center',
-    },
-    buttonText: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    link: {
-        marginTop: 15,
-        alignItems: 'center',
-    },
-    linkText: {
-        color: '#007bff',
-        fontSize: 16,
-        textDecorationLine: 'underline',
-    },
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-    modalCard: {
-        width: '80%',
-        padding: 20,
-        borderRadius: 10,
-        backgroundColor: '#fff',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 5,
-        elevation: 3,
-    },
-    modalTitle: {
-        fontSize: 24,
-        marginBottom: 15,
-        textAlign: 'center',
-        fontWeight: 'bold',
-    },
-    modalInput: {
-        height: 40,
-        borderColor: '#ddd',
-        borderWidth: 1,
-        borderRadius: 5,
-        paddingHorizontal: 10,
-        marginBottom: 15,
-        backgroundColor: '#f9f9f9',
-    },
-    modalButtonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-    },
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#f0f4f8',
+  },
+  card: {
+    padding: 20,
+    borderRadius: 15,
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+    marginBottom: 20,
+  },
+  photoContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  imageContainer: {
+    position: 'relative',
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  image: {
+    width: 105,
+    height: 105,
+    borderRadius: 50,
+  },
+  editIcon: {
+    position: 'absolute',
+    top: -10,
+    right: -10,
+    backgroundColor: '#007bff',
+    borderRadius: 15,
+    padding: 5,
+  },
+  infoContainer: {},
+  infoRow: {
+    marginTop: 10,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  info1: {
+    width: 30,
+  },
+  info2: {
+    width: 100,
+  },
+  label: {
+    marginLeft: 10,
+    fontWeight: 'bold',
+    color: '#333',
+    flex: 1,
+  },
+  value: {
+    flex: 2,
+    color: '#555',
+  },
+  button: {
+    width: 150,
+    flexDirection: 'row',
+    backgroundColor: '#007bff',
+    padding: 15,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    marginLeft: 10,
+  },
+  link: {
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  linkText: {
+    color: '#007bff',
+    fontWeight: 'bold',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalCard: {
+    width: '80%',
+    padding: 20,
+    borderRadius: 15,
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15,
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 15,
+  },
+  focusedInput: {
+    borderColor: '#007bff',
+    borderWidth: 2,
+  },
+  pickerContainer: {
+    marginBottom: 15,
+  },
+  picker: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    height: 50,
+  },
+  modalButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
 });
 
-export default AdminProfile;
+export default ProfileScreen;

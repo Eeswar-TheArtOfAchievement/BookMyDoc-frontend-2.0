@@ -26,6 +26,7 @@ const MyAppointmentsScreen = () => {
         try {
             const response = await axios.get(`http://192.168.1.14:5000/api/v1/appointments/patient/${patientId}`); // Update to your server URL
             setAppointments(response.data);
+            
         } catch (error) {
             console.error(error);
             Alert.alert('Error', 'Failed to fetch appointments');
@@ -34,7 +35,7 @@ const MyAppointmentsScreen = () => {
     useEffect(() => {
         fetchAppointments();
     }, [newAppointments]);
-
+    console.log(appointments)
     const filteredAppointments = appointments.filter(appointment =>
         (appointment.doctorId.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
          appointment.locationId.cityName.toLowerCase().includes(searchTerm.toLowerCase())) &&
@@ -112,7 +113,7 @@ const MyAppointmentsScreen = () => {
         <View style={[styles.appointmentCard, { borderColor: getStatusColor(item.status) }]}>
             <Text style={styles.doctorName}>{item.doctorId.fullName}</Text>
             <Text>Date: {new Date(item.appointmentDate).toLocaleDateString()}</Text>
-            <Text>Time: {new Date(item.appointmentDate).toLocaleTimeString()}</Text>
+            <Text>Time: {item.startTime}</Text>
             <Text>Location: {item.locationId.hospitalName} , {item.locationId.address} , {item.locationId.cityName}</Text>
             <Text>Contact: {item.contact}</Text>
             <Text>Status: {item.status}</Text>

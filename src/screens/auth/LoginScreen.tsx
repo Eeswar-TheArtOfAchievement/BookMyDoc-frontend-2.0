@@ -51,8 +51,11 @@ const LoginScreen = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      <Image source={require('../../assets/asset3.png')} style={styles.logo} />
-      <Text style={styles.bar}>Nice to see u again </Text>
+        <View style={styles.logo}>
+             <Image source={require('../../assets/logo.png')} style={styles.logo1}  />
+            <Text style={styles.bar}>BookMyDoc</Text>
+        </View>
+        <Text style={styles.bar1}>Welcome Back</Text>
       <View style={styles.formContainer}>
         <TextInput
           style={styles.input}
@@ -95,10 +98,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#f5f5f5',
   },
+  bar1: {
+    fontSize: 24,
+    display: 'flex',
+    marginLeft: -250,
+    fontWeight: 'bold',
+    marginBottom: 20,
+
+  },
   bar: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
   },
   formContainer: {
     width: '100%',
@@ -143,9 +153,24 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textDecorationLine: 'underline',
   },
+  logo1:{
+    width: 50,
+    height: 50,
+    resizeMode: 'contain',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+   
+  },
   logo: {
     width: width * 1,
-    height: height * 0.4,
+    height: height * 0.2,
+    display: 'flex',
+flexDirection: 'row',
+    justifyContent: 'center',
+    gap:10,
+    alignItems: 'center',
+
 },
 });
 
