@@ -17,8 +17,7 @@ import axios from 'axios';
 import {useUser} from '../../contexts/UserProvider';
 import {Picker} from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { CommonActions } from '@react-navigation/native';
-
+import Toast from 'react-native-toast-message';
 const ProfileScreen = ({navigation}) => {
   const {userDetails, updateUserDetails} = useUser();
   const [modalVisible, setModalVisible] = useState(false);
@@ -26,6 +25,21 @@ const ProfileScreen = ({navigation}) => {
   const [image, setImage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
+
+  const showToast = () => {
+    Toast.show({
+      type: 'success',
+      text1: 'Profile Image update takes time  👋',
+    //   text2: 'Appointment Booked Successfully  👋',
+    //   style: {
+    //     borderRadius: 15,
+    //     height: 100, // Customize height
+    //     width: 400, // Customize width
+    //     backgroundColor: '#000', // Customize background color
+    // },
+    });
+  };
+  const [show, setShow] = useState(false);
   useEffect(() => {
     setTempDetails(userDetails);
   }, [userDetails]);
@@ -57,6 +71,7 @@ const ProfileScreen = ({navigation}) => {
         userId,
         image: base64Image,
       });
+      showToast();
     } catch (error) {
       console.error('Error uploading image:', error);
     }
@@ -107,14 +122,13 @@ const ProfileScreen = ({navigation}) => {
           try {
             await AsyncStorage.removeItem('token');
             Alert.alert('Signed Out', 'You have been signed out successfully.');
-            navigation.dispatch(
-                CommonActions.reset({
-                  index: 0,
-                  routes: [{ name: 'Login' }],
-                })
-              );
+            // Reset navigation to AuthStackNavigator
+            navigation.reset({
+              index: 0,
+              routes: [{name: 'Login'}], // Ensure this is correct
+            });
           } catch (error) {
-            console.error('Error clearing AsyncStorage:', error);
+            console.error(error);
           }
         },
       },

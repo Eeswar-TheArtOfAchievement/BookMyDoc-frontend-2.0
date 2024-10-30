@@ -12,7 +12,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
   Alert,
   Image,
-  ImageBackground,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -92,13 +91,13 @@ const CustomDrawerContent = props => {
         text: 'OK',
         onPress: async () => {
           try {
-            // await AsyncStorage.removeItem('token');
+            await AsyncStorage.removeItem('token');
             Alert.alert('Signed Out', 'You have been signed out successfully.');
-            props.navigation.navigate('Welcome');
+            props.navigation.replace('Login');
             // navigation.dispatch(
             //     CommonActions.reset({
             //         index: 0,
-            //         routes: [{ name: 'Welcome' }],
+            //         routes: [{ name: 'Login' }],
             //     }));
           } catch (error) {
             console.error('Error clearing AsyncStorage:', error);

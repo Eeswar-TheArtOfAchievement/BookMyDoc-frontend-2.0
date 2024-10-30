@@ -42,7 +42,28 @@ export const AppointmentProvider = ({ children }) => {
 export const useNewAppointments = () => useContext(AppointmentContext);
 
 
+// Create a context for Admin
+const DoctorContext = createContext();
 
+// Create a Provider Component
+export const DoctorProvider = ({ children }) => {
+  const [doctorDetails, setDoctorDetails] = useState(null); // Initialize with null
+
+  const updateDoctorDetails = (details) => {
+    setDoctorDetails(details);
+  };
+
+  return (
+    <DoctorContext.Provider value={{ doctorDetails, updateDoctorDetails }}>
+      {children}
+    </DoctorContext.Provider>
+  );
+};
+
+// Custom hook to use the Admin context
+export const useDoctor = () => {
+  return useContext(DoctorContext);
+};
 
 
 

@@ -46,8 +46,8 @@ const BookAppointmentScreen = ({ route, navigation }) => {
         // },
         });
       };
+      const [show, setShow] = useState(false);
     const [date, setDate] = useState(new Date());
-    const [show, setShow] = useState(false);
     // useEffect(() => {
     //     if (doctorDetails) {
     //         setSelectedLocation([doctorDetails.locationId.cityName]); // Set the selected location

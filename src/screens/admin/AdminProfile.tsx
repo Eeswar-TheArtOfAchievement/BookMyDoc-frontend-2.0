@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import {launchImageLibrary} from 'react-native-image-picker';
 import axios from 'axios';
-import {useAdmin, useUser} from '../../contexts/UserProvider';
+import {useAdmin} from '../../contexts/UserProvider';
 import {Picker} from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { CommonActions } from '@react-navigation/native';
@@ -84,7 +84,7 @@ const ProfileScreen = ({navigation}) => {
         },
       );
 
-      updateUserDetails(tempDetails);
+      updateAdminDetails(tempDetails);
       setModalVisible(false);
       Alert.alert('Successful', 'User details have been updated successfully.');
     } catch (error) {
