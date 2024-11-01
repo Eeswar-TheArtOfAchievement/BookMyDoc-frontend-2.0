@@ -1,161 +1,128 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Button, Alert, FlatList, TouchableOpacity } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {  View,  Text,  StyleSheet,  Button,  Alert,  FlatList,  TouchableOpacity,  ActivityIndicator,  Image } from 'react-native';
+import { useDoctor } from '../../contexts/UserProvider';
 
-const DoctorDashboard = ({ navigation }) => {
-    const [doctorData, setDoctorData] = useState(null);
+const DoctorDashboard = ({navigation}) => {
+    const {doctorDetails , updateDoctorDetails} = useDoctor();
+  const [doctorData, setDoctorData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [appointments, setAppointments] = useState([]);
+  const [showingTelehealth, setShowingTelehealth] = useState(false);
 
-    useEffect(() => {
-        const fetchDoctorData = async () => {
-            try {
-                const token = await AsyncStorage.getItem('token');
-                const response = await fetch('http://192.168.1.14:5000/api/v1/doctors/dashboard', {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                    },
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Failed to fetch doctor data');
-                }
-                
-                const data = await response.json();
-                setDoctorData(data);
-            } catch (error) {
-                console.error('Error fetching doctor data:', error);
-                Alert.alert('Error', 'Could not load doctor data.');
-            }
-        };
-
-        fetchDoctorData();
-    }, []);
-
-    if (!doctorData) {
-        return <Text style={styles.loading}>Loading...</Text>;
-    }
-
-    console.log(doctorData);
-
-    const handleUpdateAvailability = () => {
-        // Add functionality for updating availability
-        Alert.alert('Update Availability', 'Functionality to update availability will be implemented here.');
+  // fetch doctor data
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        Alert.alert('Session Expired', 'Please log in again.');
+        navigation.navigate('Login');
+        return;
+      }
+      const response = await fetch(
+        'http://192.168.1.14:5000/api/v1/doctors/dashboard',
+        {
+          method: 'GET',
+          headers: {Authorization: `Bearer ${token}`},
+        },
+      );
+      const data = await response.json();
+      updateDoctorDetails(data);
+      setDoctorData(data.doctor);
+      setAppointments(data.appointments);
+      setLoading(false);
     };
-
+    fetchData();
+  }, []);
+   // loader indicator
+  if (loading) {
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Doctor Dashboard</Text>
-            <View style={styles.profileContainer}>
-                <Text style={styles.profileInfo}>Name: {doctorData.fullName}</Text>
-                <Text style={styles.profileInfo}>Email: {doctorData.email}</Text>
-                <Text style={styles.profileInfo}>Experience: {doctorData.experience} years</Text>
-                <Text style={styles.profileInfo}>Rating: {doctorData.rating}</Text>
-            </View>
-
-            <TouchableOpacity style={styles.button} onPress={handleUpdateAvailability}>
-                <Text style={styles.buttonText}>Update Availability</Text>
-            </TouchableOpacity>
-
-            <Text style={styles.sectionTitle}>Total Appointments: {doctorData.totalAppointments}</Text>
-
-            <View>
-                <Text style={styles.subtitle}>Upcoming Appointments:</Text>
-                <FlatList 
-                    data={doctorData.upcomingAppointments}
-                    keyExtractor={(item) => item.id.toString()}
-                    renderItem={({ item }) => (
-                        <View style={styles.appointmentCard}>
-                            <Text style={styles.appointmentText}>Date: {item.date}</Text>
-                            <Text style={styles.appointmentText}>Patient: {item.patientName}</Text>
-                            <Text style={styles.appointmentText}>Status: {item.status}</Text>
-                        </View>
-                    )}
-                />
-            </View>
-
-            <View>
-                <Text style={styles.subtitle}>Completed Appointments:</Text>
-                <FlatList 
-                    data={doctorData.completedAppointments}
-                    keyExtractor={(item) => item.id.toString()}
-                    renderItem={({ item }) => (
-                        <View style={styles.appointmentCard}>
-                            <Text style={styles.appointmentText}>Date: {item.date}</Text>
-                            <Text style={styles.appointmentText}>Patient: {item.patientName}</Text>
-                            <Text style={styles.appointmentText}>Feedback: {item.feedback}</Text>
-                        </View>
-                    )}
-                />
-            </View>
-
-            <Button title="Log Out" onPress={() => {/* Handle logout */}} />
-        </View>
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007BFF" />
+        <Text>Loading...</Text>
+      </View>
     );
+  }
+
+  const data = [
+    { id: '1', icon: require('../../assets/logo.png'), heading: 'Coming appointments', number: '123', date: '2023-11-01' },
+    { id: '2', icon:require('../../assets/logo.png'), heading: 'Total Appointments', number: '456', date: '2023-11-02' },
+    { id: '3', icon: require('../../assets/logo.png'), heading: 'Update schedule', number: '789', date: '2023-11-03' },
+    { id: '4', icon: require('../../assets/logo.png'), heading: 'Rating', number: '4.5', date: '2023-11-04' },
+
+  ];
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={data}
+        keyExtractor={item => item.id}
+        numColumns={2}
+        columnWrapperStyle={styles.row}
+        renderItem={({ item }) => (
+            <View style={styles.card}>
+            <View style={styles.iconContainer}>
+              <Image source={item.icon} style={styles.icon} />
+            </View>
+            <View style={styles.detailsContainer}>
+              <Text style={styles.heading}>{item.heading}</Text>
+              <Text style={styles.number}>{item.number}</Text>
+              <Text style={styles.date}>{item.date}</Text>
+            </View>
+          </View>
+        )}
+        />
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
     container: {
+        alignItems: 'center',
+        justifyContent: 'center',
         flex: 1,
         padding: 20,
         backgroundColor: '#F7F9FC',
     },
-    loading: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        fontSize: 18,
-        color: '#666',
-    },
-    title: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        marginBottom: 20,
-        marginTop: 10,
-    },
-    profileContainer: {
-        padding: 15,
+    card: {
+        flexDirection: 'row',
         backgroundColor: '#fff',
-        borderRadius: 8,
-        elevation: 2,
-        marginBottom: 20,
-    },
-    profileInfo: {
-        fontSize: 18,
-        marginVertical: 5,
-    },
-    button: {
-        backgroundColor: '#4CAF50',
-        padding: 15,
-        borderRadius: 5,
-        alignItems: 'center',
-        marginBottom: 20,
-    },
-    buttonText: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    sectionTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
-    subtitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginVertical: 10,
-    },
-    appointmentCard: {
-        backgroundColor: '#fff',
+        borderRadius: 10,
+        elevation: 3,
+        marginBottom: 16,
+        width: '50%',
         padding: 10,
-        borderRadius: 5,
-        marginVertical: 5,
-        elevation: 1,
     },
-    appointmentText: {
-        fontSize: 16,
-        color: '#333',
+    
+    iconContainer: {
+      width: '30%', // 230% of the card size here means you can adjust this as needed
+      justifyContent: 'center',
+      alignItems: 'center',
     },
+    icon: {
+      width: 50, // Adjust icon size as necessary
+      height: 50,
+    },
+    detailsContainer: {
+      width: '70%', // Remaining space for details
+      justifyContent: 'center',
+      paddingLeft: 10,
+    },
+    heading: {
+      fontSize: 18,
+      fontWeight: 'bold',
+    },
+    number: {
+      fontSize: 16,
+      color: 'gray',
+    },
+    date: {
+      fontSize: 14,
+      color: 'lightgray',
+    },
+    row: {
+    justifyContent: 'space-between', // Distribute space evenly
+  },
+
 });
 
 export default DoctorDashboard;

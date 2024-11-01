@@ -1,11 +1,12 @@
-import React from 'react';
-import { Text, StyleSheet, ScrollView, BackHandler, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { Text, StyleSheet, ScrollView, BackHandler, Alert, View, ActivityIndicator } from 'react-native';
 import { useAdmin } from '../../contexts/UserProvider';
 import { useFocusEffect } from '@react-navigation/native';
 
 
 const AdminDashboard: React.FC = () => {
-
+    const [adminData, setAdminData] = useState(null);
+    const [loading, setLoading] = useState(false); // New loading state
     useFocusEffect(
         React.useCallback(() => {
           BackHandler.addEventListener('hardwareBackPress', handleBackPress);
@@ -22,6 +23,14 @@ const AdminDashboard: React.FC = () => {
         return true;
       };
 const { adminDetails , updateAdminDetails } = useAdmin();
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#0000ff" />
+                <Text>Loading...</Text>
+            </View>
+        );
+    }
 
 
   return (
@@ -33,7 +42,11 @@ const { adminDetails , updateAdminDetails } = useAdmin();
 };
 
 const styles = StyleSheet.create({
-
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
 
 });
 

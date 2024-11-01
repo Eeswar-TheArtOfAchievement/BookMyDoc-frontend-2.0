@@ -1,18 +1,7 @@
 import React, {useEffect, useState} from 'react';
-import {
-  createDrawerNavigator,
-  DrawerContentScrollView,
-  DrawerItemList,
-  DrawerItem,
-} from '@react-navigation/drawer';
+import {  createDrawerNavigator,  DrawerContentScrollView,  DrawerItemList,  DrawerItem } from '@react-navigation/drawer';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {
-  Alert,
-  ImageBackground,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {  Alert,  ImageBackground,StyleSheet,TouchableOpacity,View} from 'react-native';
 import {ActivityIndicator, Avatar, Text, Title} from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -20,7 +9,7 @@ import DoctorDashboard from '../screens/doctor/DoctorDashboard';
 import MyPatientsScreen from '../screens/doctor/MyPatientsScreen';
 import DoctorProfileScreen from '../screens/doctor/DoctorProfileScreen';
 import {DoctorProvider, useDoctor} from '../contexts/UserProvider';
-import {CommonActions} from '@react-navigation/native';
+import AvailabilityScreen from '../screens/doctor/AvailabilityScreen';
 const DoctorDrawer = createDrawerNavigator();
 
 // Define a separate function for the icons
@@ -61,11 +50,6 @@ const CustomDrawerContent = props => {
             console.log(doctorDetails);
             // Set the formatted date for rendering
             setFormattedDateOfBirth(formattedDate);
-            if (tempDetails && doctorData.fullName && doctorData.email) {
-              Alert.alert('Welcome', `Welcome, ${doctorData.fullName}!`);
-            } else {
-              Alert.alert('Error', 'User data is incomplete or not available.');
-            }
           } else {
             Alert.alert('Error', 'Failed to fetch doctor details.');
           }
@@ -93,7 +77,7 @@ const CustomDrawerContent = props => {
           try {
             await AsyncStorage.removeItem('token');
             Alert.alert('Signed Out', 'You have been signed out successfully.');
-            props.navigation.replace('Login');
+            props.navigation.navigate('Login');
             // props.navigation.reset({
             //     index: 0,
             //     routes: [{name: 'Login'}], // Ensure this is correct
@@ -176,11 +160,19 @@ const DoctorDrawerNav = ({navigation}) => {
           }}
         />
         <DoctorDrawer.Screen
+          name="Availability"
+          component={AvailabilityScreen}
+          options={{
+            drawerIcon: getDrawerIcon('person-outline'),
+            title: 'Availability',
+          }}
+        />
+        <DoctorDrawer.Screen
           name="MyPatients"
           component={MyPatientsScreen}
           options={{
             drawerIcon: getDrawerIcon('person-outline'),
-            title: 'Doctors',
+            title: 'MyPatients',
           }}
         />
         <DoctorDrawer.Screen
@@ -188,7 +180,7 @@ const DoctorDrawerNav = ({navigation}) => {
           component={DoctorProfileScreen}
           options={{
             drawerIcon: getDrawerIcon('person-outline'),
-            title: 'Users',
+            title: 'Settings',
           }}
         />
       </DoctorDrawer.Navigator>
@@ -230,12 +222,12 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   logoutItem: {
-    color: 'red',
-    backgroundColor: '#f4f4f4',
-    marginBottom: 10,
-  },
-  logoutLabel: {
-    color: '#000',
+      backgroundColor: '#f4f4f4',
+      marginBottom: 10,
+    },
+    logoutLabel: {
+        // color: '#000000',
+        color: 'red',
   },
   profileContainer: {
     flexDirection: 'row',
