@@ -91,7 +91,7 @@ export const useAdmin = () => {
   return useContext(AdminContext);
 };
 
-export const AuthContext = createContext();
+ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [role, setRole] = useState(null); // null, 'doctor', or 'admin'
@@ -110,3 +110,7 @@ export const AuthProvider = ({ children }) => {
         </AuthContext.Provider>
     );
 };
+export const useAuth = () => {
+    return useContext(AuthContext);
+  };
+

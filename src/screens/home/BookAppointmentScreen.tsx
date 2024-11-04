@@ -274,7 +274,7 @@ const BookAppointmentScreen = ({ route, navigation }) => {
             //             value={`${slot.startTime} -- ${slot.endTime}`}
             //         />
             //     ))}
-            // </Picker>   
+            // </Picker>
         )}
 
             <TextInput

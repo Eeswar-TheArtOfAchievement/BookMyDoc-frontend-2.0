@@ -125,9 +125,8 @@ const HomeScreen = ({navigation}) => {
       </View>
       <TouchableOpacity
         style={styles.button}
-        onPress={() =>
-          navigation.navigate('Book-Appointment', {doctorDetails: item})
-        }>
+        onPress={() => navigation.navigate('DoctorDetail', { doctor: item })}
+        >
         <Text style={styles.buttonText}>Book Now</Text>
       </TouchableOpacity>
     </View>

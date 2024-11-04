@@ -26,6 +26,17 @@ const DoctorDashboard = ({navigation}) => {
           headers: {Authorization: `Bearer ${token}`},
         },
       );
+      if (response.status === 429) {
+        Alert.alert('Error', 'Too many requests. Please try again later.');
+        return;
+      }
+      if (response.status === 401) {
+        Alert.alert('Session Expired', 'Please log in again.');
+        await AsyncStorage.removeItem('token');
+        navigation.navigate('Login');
+        return;
+      }
+
       const data = await response.json();
       updateDoctorDetails(data);
       setDoctorData(data.doctor);
