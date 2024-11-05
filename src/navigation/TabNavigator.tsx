@@ -34,9 +34,10 @@ const TabNavigator = ({ navigation }) => {
       screenOptions={({route}) => ({
         tabBarIcon: props => <TabIcon {...props} route={route} />,
         tabBarActiveTintColor: '#1878F1',
-        tabBarInactiveTintColor: 'gray',
+        tabBarInactiveTintColor: '#000',
         tabBarLabelStyle: {fontSize: 13},
         tabBarActiveBackgroundColor: '#f7f9fc',
+        tabBarItemStyle: {color: '#000', paddingBottom : 7},
       })}>
       <Tab.Screen
         name="Home"

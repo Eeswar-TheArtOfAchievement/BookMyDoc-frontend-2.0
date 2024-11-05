@@ -4,9 +4,9 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons'; // Import Ionicons
 
-const CustomHeader = ({ title, imageUri, location }) => {
+const CustomHeader = ({ title, imageUri, location ,hospital }) => {
     const navigation = useNavigation(); // Hook to get navigation object
-
+console.log(location)
     return (
         <View style={styles.headerContainer}>
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
@@ -18,7 +18,7 @@ const CustomHeader = ({ title, imageUri, location }) => {
             />
             <View style={styles.textContainer}>
                 <Text style={styles.headerTitle}>{title}</Text>
-                <Text style={styles.text}>Apollo , {location}</Text>
+                <Text style={styles.text}>{hospital.hospitalName} , {location}</Text>
             </View>
         </View>
     );

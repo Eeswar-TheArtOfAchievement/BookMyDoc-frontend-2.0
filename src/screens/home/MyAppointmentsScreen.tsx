@@ -35,14 +35,15 @@ const MyAppointmentsScreen = () => {
     useEffect(() => {
         fetchAppointments();
     }, [newAppointments]);
-    console.log(appointments)
+    console.log(appointments);
+
     const filteredAppointments = appointments.filter(appointment =>
         (appointment.doctorId.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
          appointment.locationId.cityName.toLowerCase().includes(searchTerm.toLowerCase())) &&
         (selectedValue === 'Confirmed' ? appointment.status === 'Confirmed' :
          selectedValue === 'Completed' ? appointment.status === 'Completed' :
          selectedValue === 'Cancelled' ? appointment.status === 'Cancelled' : true)
-        
+
     );
 
     const handleEditAppointment = (appointment) => {

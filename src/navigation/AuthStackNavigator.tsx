@@ -15,6 +15,7 @@ import PrivacyPolicy from '../screens/PrivacyPolicy';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LoadingIndicator from '../screens/LoadingIndicator';
 import DoctorDetailScreen from '../screens/home/DoctorDetailScreen';
+import AllDoctorsScreen from '../screens/home/AllDoctorsScreen';
 
 const Stack = createStackNavigator();
 
@@ -90,6 +91,7 @@ const AuthStackNavigator = () => {
             <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
             <Stack.Screen name="About" component={AboutScreen} />
             <Stack.Screen name="DoctorDetail" component={DoctorDetailScreen} />
+            <Stack.Screen name="Find Doctors" component={AllDoctorsScreen} />
         </Stack.Navigator>
     );
 };

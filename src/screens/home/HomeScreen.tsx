@@ -105,7 +105,7 @@ const HomeScreen = ({navigation}) => {
       <Text style={styles.itemText}>{item.name}</Text>
     </View>
   );
-
+console.log("hii", doctorDetails)
   const renderDoctorCard = ({item}) => (
     <View style={styles.doctorCard}>
       <Image
@@ -125,7 +125,7 @@ const HomeScreen = ({navigation}) => {
       </View>
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate('DoctorDetail', { doctor: item })}
+        onPress={() => navigation.navigate('DoctorDetail', { doctor: item , locationId: item.locationId._id})}
         >
         <Text style={styles.buttonText}>Book Now</Text>
       </TouchableOpacity>
@@ -289,7 +289,12 @@ const HomeScreen = ({navigation}) => {
       </Swiper>
       <View style={styles.heading}>
         <Text style={styles.headText}>Top Doctors</Text>
+        <TouchableOpacity
+        // style={styles.button}
+        onPress={() => navigation.navigate('Find Doctors')}
+        >
         <Text style={styles.subText}>See All</Text>
+      </TouchableOpacity>
       </View>
       <FlatList
         data={doctorDetails}
@@ -313,7 +318,7 @@ const HomeScreen = ({navigation}) => {
         style={styles.grid}
       />
       <View style={styles.footerCard}>
-        <Text style={styles.text}>
+        <Text style={styles.subText2}>
           Our community of doctors and patients drive us to create technologies
           for better and affordable healthcare
         </Text>
@@ -428,7 +433,7 @@ const styles = StyleSheet.create({
     width: 30,
   },
   text: {
-    fontSize: 24,
+    fontSize: 20,
     color: '#7D8CA3',
     marginBottom: 20,
   },
@@ -439,6 +444,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#',
   },
   aboutContainer: {
+    marginTop:10,
     flexDirection: 'row',
     justifyContent: 'flex-start',
     marginBottom: 20,
@@ -467,7 +473,7 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   subText2: {
-    fontSize: 20,
+    fontSize: 24,
     color: 'black',
   },
   subText1: {

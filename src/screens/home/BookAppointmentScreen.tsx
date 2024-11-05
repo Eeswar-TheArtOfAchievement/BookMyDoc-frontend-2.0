@@ -11,7 +11,7 @@ import Toast from 'react-native-toast-message';
 const BookAppointmentScreen = ({ route, navigation }) => {
     const { updateNewAppointments } = useNewAppointments();
     const { userDetails , updateUserDetails } = useUser();
-    
+
 
     const [locations, setLocations] = useState([]);
     const [selectedLocation, setSelectedLocation] = useState('');
@@ -22,12 +22,12 @@ const BookAppointmentScreen = ({ route, navigation }) => {
     const [timeSlots, setTimeSlots] = useState([]);
     const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
     const [loading, setLoading] = useState(false);
-    const [selectedDate, setSelectedDate] =useState('');
+    const [selectedDate, setSelectedDate] = useState('');
     const [selectedTime, setSelectedTime] = useState([]);
     const [selectedSlotId, setSelectedSlotId] = useState('');
     const [slotTime, setSlotTime] = useState('');
     const [location, setLocation] = useState('');
-    const [customerLocation, setCustomerLocation] = useState('')
+    const [customerLocation, setCustomerLocation] = useState('');
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
 
@@ -63,6 +63,10 @@ const BookAppointmentScreen = ({ route, navigation }) => {
         const currentDate = selectedDate || date;
         setShow(false);
         setDate(currentDate);
+    };
+    const handleSlotPress = (id, startTime) => {
+        setSelectedSlotId(id);
+        setSlotTime(startTime);
     };
 
 
@@ -103,7 +107,7 @@ const BookAppointmentScreen = ({ route, navigation }) => {
     }, [selectedLocation]);
 
     useEffect(() => {
-        if (selectedDate || selectedDoctor) {
+        if (selectedDate && selectedDoctor) {
             setTimeSlots([]);
             setSelectedTime([]);
             const fetchTimeSlots = async () => {
@@ -115,7 +119,10 @@ const BookAppointmentScreen = ({ route, navigation }) => {
                         },
                     });
                     console.log(response.data);
-                    setTimeSlots(response.data); // Set the time slots from response
+                   // Only update time slots if the data has changed
+                if (response.data !== timeSlots) {
+                    setTimeSlots(response.data);
+                }
                 } catch (error) {
                     console.error('Error fetching time slots:', error);
                     Alert.alert('Error', 'Could not load time slots. \nSelect another doctor / date ');
@@ -125,7 +132,7 @@ const BookAppointmentScreen = ({ route, navigation }) => {
         } else {
             setTimeSlots([]);
         }
-    }, [selectedDate , selectedDoctor]);
+    }, [selectedDate]);
 
     const handleSubmit = async () => {
       setLoading(true);
@@ -141,6 +148,7 @@ const BookAppointmentScreen = ({ route, navigation }) => {
             doctorId: selectedDoctor,
             date: selectedDate,
             slotTime: slotTime,
+            slotId: selectedSlotId,
             problem: problem,
             symptoms: symptoms,
             userId: userDetails.id,
@@ -161,7 +169,7 @@ const BookAppointmentScreen = ({ route, navigation }) => {
                 return;
             }
             const response = await axios.post('http://192.168.1.14:5000/api/v1/appointments/book', appointmentData);
-            console.log(response, "re")
+            console.log('re');
             // Check the response from the backend
             if (response.status === 201) {
                 updateNewAppointments(response);
@@ -171,7 +179,6 @@ const BookAppointmentScreen = ({ route, navigation }) => {
                 setSelectedDate('');
                 setSelectedTime([]);
                 setTimeSlots([]);
-                setLocations([]);
                 setProblem('');
                 setSymptoms('');
                 showToast();
@@ -218,6 +225,7 @@ const BookAppointmentScreen = ({ route, navigation }) => {
                 ))}
             </Picker>
             <View >
+                <Text style={styles.label}>Select Date</Text>
             <HorizontalDatepicker
                 mode="gregorian"
                 startDate={startDate}
@@ -244,16 +252,16 @@ const BookAppointmentScreen = ({ route, navigation }) => {
                     return (
                         <Pressable
                             key={index}
-                            onPress={() => setSelectedSlotId(item._id),  setSlotTime(item.startTime)} // Update selected time
+                            onPress={() => handleSlotPress(item._id, item.startTime)}
                             style={{
                                 margin: 10,
                                 height:50,
                                 borderRadius: 7,
                                 padding: 15,
-                                borderColor: selectedSlotId === item._id ? "red" : "gray",
+                                borderColor: selectedSlotId === item._id ? 'red' : 'gray',
                                 borderWidth: 0.7,
                             }
-                            } 
+                            }
                         >
                             <Text>{item.startTime}</Text>
                         </Pressable>
@@ -297,7 +305,7 @@ const BookAppointmentScreen = ({ route, navigation }) => {
                     <Text style={styles.buttonText}>Book Appointment</Text>
                 )}
             </TouchableOpacity>
-            
+
         </View>
     );
 };
