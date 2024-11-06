@@ -10,7 +10,7 @@ console.log(location)
     return (
         <View style={styles.headerContainer}>
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                <Text style={styles.backText}><Icon name="arrow-back" size={24} color="#fff" /></Text>
+                <Text style={styles.backText}><Icon name="arrow-back" size={24}  /></Text>
             </TouchableOpacity>
             <Image
                 source={{ uri: imageUri }}
@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
     },
     backText: {
         fontSize: 24,
-        color: '#fff',
+        color: '#000',
     },
     headerImage: {
         width: 40,

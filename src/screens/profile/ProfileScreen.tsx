@@ -17,6 +17,9 @@ import axios from 'axios';
 import {useUser} from '../../contexts/UserProvider';
 import {Picker} from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+
+
 import Toast from 'react-native-toast-message';
 const ProfileScreen = ({navigation}) => {
   const {userDetails, updateUserDetails} = useUser();
@@ -148,7 +151,7 @@ const ProfileScreen = ({navigation}) => {
                 style={styles.image}
               />
               <TouchableOpacity style={styles.editIcon} onPress={pickImage}>
-                <Icon name="edit" size={24} color="#fff" />
+                <Icon name="camera" size={24} color="#fff" />
               </TouchableOpacity>
             </View>
           ) : (
@@ -203,7 +206,7 @@ const ProfileScreen = ({navigation}) => {
         <TouchableOpacity
           style={styles.button}
           onPress={() => setModalVisible(true)}>
-          <Icon name="edit" size={20} color="#fff" />
+          <MaterialCommunityIcons name="account-edit-outline" size={23} color="#fff" />
           <Text style={styles.buttonText}> Update Profile</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={handleSignOut}>
@@ -223,7 +226,7 @@ const ProfileScreen = ({navigation}) => {
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.link}>
-        <Text style={styles.linkText}>version 0.001</Text>
+        <Text style={styles.linkText}>version 2.0</Text>
       </TouchableOpacity>
 
       <Modal
@@ -350,7 +353,7 @@ const styles = StyleSheet.create({
   },
   editIcon: {
     position: 'absolute',
-    top: -10,
+    bottom: -10,
     right: -10,
     backgroundColor: '#007bff',
     borderRadius: 15,
