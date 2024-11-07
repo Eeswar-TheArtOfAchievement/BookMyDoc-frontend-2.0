@@ -18,6 +18,7 @@ import {useAdmin} from '../../contexts/UserProvider';
 import {Picker} from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { CommonActions } from '@react-navigation/native';
+import ipAddress from '../../../config/ipConfig';
 
 const ProfileScreen = ({navigation}) => {
   const {adminDetails, updateAdminDetails} = useAdmin();
@@ -53,7 +54,7 @@ const ProfileScreen = ({navigation}) => {
   const uploadImage = async base64Image => {
     const userId = adminDetails.id;
     try {
-      await axios.post('http://192.168.1.14:5000/api/v1/auth/image', {
+      await axios.post(`http://${ipAddress}:5000/api/v1/auth/image`, {
         userId,
         image: base64Image,
       });
@@ -71,7 +72,7 @@ const ProfileScreen = ({navigation}) => {
       const token = await AsyncStorage.getItem('token');
 
       await axios.patch(
-        `http://192.168.1.14:5000/api/v1/auth/update/${adminDetails.id}`,
+        `http://${ipAddress}:5000/api/v1/auth/update/${adminDetails.id}`,
         {
           ...tempDetails,
           dateOfBirth: formattedDate.toISOString(),

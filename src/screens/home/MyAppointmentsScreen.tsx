@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useNewAppointments, useUser } from '../../contexts/UserProvider';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Picker } from '@react-native-picker/picker';
+import ipAddress from '../../../config/ipConfig';
 
 const MyAppointmentsScreen = () => {
     const { newAppointments } = useNewAppointments();
@@ -24,9 +25,9 @@ const MyAppointmentsScreen = () => {
     console.log(patientId , 'h');
     const fetchAppointments = async () => {
         try {
-            const response = await axios.get(`http://192.168.1.14:5000/api/v1/appointments/patient/${patientId}`); // Update to your server URL
+            const response = await axios.get(`http://${ipAddress}:5000/api/v1/appointments/patient/${patientId}`); // Update to your server URL
             setAppointments(response.data);
-            
+
         } catch (error) {
             console.error(error);
             Alert.alert('Error', 'Failed to fetch appointments');
@@ -67,7 +68,7 @@ const MyAppointmentsScreen = () => {
                 status: selectedAppointment.status, // Keep the same status
             };
 
-            await axios.put(`http://localhost:5000/appointments/${selectedAppointment._id}`, updatedAppointment);
+            await axios.put(`http://${ipAddress}:5000/appointments/${selectedAppointment._id}`, updatedAppointment);
             setAppointments(prev => prev.map(appointment =>
                 appointment._id === selectedAppointment._id ? { ...appointment, ...updatedAppointment } : appointment
             ));
@@ -84,7 +85,7 @@ const MyAppointmentsScreen = () => {
             { text: 'Cancel', style: 'cancel' },
             { text: 'OK', onPress: async () => {
                 try {
-                    await axios.patch(`http://192.168.1.14:5000/api/v1/appointments/${appointmentId}`);
+                    await axios.patch(`http://${ipAddress}:5000/api/v1/appointments/${appointmentId}`);
                     setAppointments(prev => prev.filter(appointment => appointment._id !== appointmentId));
                     fetchAppointments();
                     Alert.alert('Cancelled', 'Your appointment has been cancelled.');

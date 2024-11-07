@@ -17,6 +17,7 @@ import axios from 'axios';
 import {useDoctor} from '../../contexts/UserProvider';
 import {Picker} from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import ipAddress from '../../../config/ipConfig';
 
 const DoctorProfileScreen = ({navigation}) => {
   const {doctorDetails, updateDoctorDetails} = useDoctor();
@@ -52,7 +53,7 @@ const DoctorProfileScreen = ({navigation}) => {
   const uploadImage = async base64Image => {
     const userId = doctorDetails.id;
     try {
-      await axios.post('http://192.168.1.14:5000/api/v1/doctors/image', {
+      await axios.post(`http://${ipAddress}:5000/api/v1/doctors/image`, {
         userId,
         image: base64Image,
       });
@@ -70,7 +71,7 @@ const DoctorProfileScreen = ({navigation}) => {
       const token = await AsyncStorage.getItem('token');
 
       await axios.patch(
-        `http://192.168.1.14:5000/api/v1/auth/update/${doctorDetails.id}`,
+        `http://${ipAddress}:5000/api/v1/auth/update/${doctorDetails.id}`,
         {
           ...tempDetails,
           dateOfBirth: formattedDate.toISOString(),

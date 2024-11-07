@@ -6,7 +6,7 @@ import HorizontalDatepicker from '@awrminkhodaei/react-native-horizontal-datepic
 
 const AvailabilityScreen = () => {
     const { doctorDetails, updateDoctorDetails } = useDoctor();
-    const [availability, setAvailability] = useState([]); 
+    const [availability, setAvailability] = useState([]);
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [date, setDate] = useState(new Date());
@@ -73,7 +73,7 @@ const AvailabilityScreen = () => {
         setSelectedDate(currentDate);
 
         // Update availability based on selected date
-        const filteredAvailability = availabilityData.filter(item => 
+        const filteredAvailability = availabilityData.filter(item =>
             item.availabilityDate.toDateString() === currentDate.toDateString()
         );
 
@@ -101,7 +101,7 @@ const AvailabilityScreen = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.header}>Availability for {doctorDetails.fullName}</Text>
-            
+
             <Button title="Select Date" onPress={() => setShowDatePicker(true)} />
 
             {showDatePicker && (

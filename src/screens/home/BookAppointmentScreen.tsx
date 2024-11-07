@@ -8,6 +8,7 @@ import { ActivityIndicator } from 'react-native';
 
 import axios from 'axios';
 import Toast from 'react-native-toast-message';
+import ipAddress from '../../../config/ipConfig';
 const BookAppointmentScreen = ({ route, navigation }) => {
     const { updateNewAppointments } = useNewAppointments();
     const { userDetails , updateUserDetails } = useUser();
@@ -73,7 +74,7 @@ const BookAppointmentScreen = ({ route, navigation }) => {
     useEffect(() => {
         const fetchLocations = async () => {
             try {
-                const response = await axios.get('http://192.168.1.14:5000/api/v1/doctors/locations');
+                const response = await axios.get(`http://${ipAddress}:5000/api/v1/doctors/locations`);
                 setLocations(response.data);
             } catch (error) {
                 console.error('Error fetching locations:', error);
@@ -86,7 +87,7 @@ const BookAppointmentScreen = ({ route, navigation }) => {
 
     useEffect(() => {
         if (selectedLocation) {
-            fetch(`http://192.168.1.14:5000/api/v1/doctors/location/${selectedLocation}`)
+            fetch(`http://${ipAddress}:5000/api/v1/doctors/location/${selectedLocation}`)
             .then((response) => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -112,7 +113,7 @@ const BookAppointmentScreen = ({ route, navigation }) => {
             setSelectedTime([]);
             const fetchTimeSlots = async () => {
                 try {
-                    const response = await axios.get('http://192.168.1.14:5000/api/v1/appointments/timeslots', {
+                    const response = await axios.get(`http://${ipAddress}:5000/api/v1/appointments/timeslots`, {
                         params: {
                             date: selectedDate,
                             doctorId: selectedDoctor,
@@ -156,7 +157,7 @@ const BookAppointmentScreen = ({ route, navigation }) => {
         };
         try {
             // Send the appointment data to your backend API
-            const response1 = await axios.get('http://192.168.1.14:5000/api/v1/appointments/check', {
+            const response1 = await axios.get(`http://${ipAddress}:5000/api/v1/appointments/check`, {
                 params: {
                     doctorId: selectedDoctor,
                     date: selectedDate,
@@ -168,7 +169,7 @@ const BookAppointmentScreen = ({ route, navigation }) => {
                 Alert.alert('Error', 'The selected time slot is no longer available. Please choose another slot.');
                 return;
             }
-            const response = await axios.post('http://192.168.1.14:5000/api/v1/appointments/book', appointmentData);
+            const response = await axios.post(`http://${ipAddress}:5000/api/v1/appointments/book`, appointmentData);
             console.log('re');
             // Check the response from the backend
             if (response.status === 201) {

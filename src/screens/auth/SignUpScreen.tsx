@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image, Dimensions , Alert , Button  } from 'react-native';
 import { RadioButton } from 'react-native-paper';
+import ipAddress from '../../../config/ipConfig';
 
 // Get screen width for responsive image
 const { width, height } = Dimensions.get('window');
@@ -52,7 +53,7 @@ const SignUpScreen = ({navigation}) => {
     // Success
     setErrorMessage('');
     try {
-      const response = await fetch('http://192.168.1.14:5000/api/v1/auth/register', {
+      const response = await fetch(`http://${ipAddress}:5000/api/v1/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

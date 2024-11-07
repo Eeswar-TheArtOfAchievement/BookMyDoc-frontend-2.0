@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import ipAddress from '../../../config/ipConfig';
 
 const OtpScreen = ({ route, navigation }) => {
     const { email ,password, fullName, role } = route.params; // Get the email passed from SignUpScreen
@@ -11,7 +12,7 @@ const OtpScreen = ({ route, navigation }) => {
         }
         // Call your API to verify the OTP
         try {
-            const response = await fetch('http://192.168.1.14:5000/api/v1/auth/verify-otp', {
+            const response = await fetch(`http://${ipAddress}:5000/api/v1/auth/verify-otp`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

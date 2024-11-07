@@ -10,10 +10,10 @@ const SpecializationDetail = ({ navigation ,route }) => {
       <View style={styles.detailContainer}>
         {/* Specialization Image */}
         <Image source={item.image} style={styles.specializationImage} />
-        
+
         {/* Specialization Name */}
         <Text style={styles.specializationName}>{item.name}</Text>
-        
+
         {/* Specialization Description */}
         <Text style={styles.specializationDescription}>
           {item.description || 'This is a detailed description of the specialization. More information about the specialization can be added here.'}

@@ -3,6 +3,7 @@ import { View, Text, Button, FlatList, StyleSheet, Alert, TextInput, ScrollView 
 import axios from 'axios';
 import { useAdmin } from '../../contexts/UserProvider';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import ipAddress from '../../../config/ipConfig';
 
 // Sample data types
 interface Doctor {
@@ -62,7 +63,7 @@ const [specializations, setSpecializations] = useState([]);
 
   const fetchDoctors = async () => {
     try {
-      const response = await axios.get('http://192.168.1.14:5000/api/v1/doctors');
+      const response = await axios.get(`http://${ipAddress}:5000/api/v1/doctors`);
       setDoctors(response.data);
     } catch (error) {
       console.error('Error fetching doctors:', error);
@@ -72,7 +73,7 @@ const [specializations, setSpecializations] = useState([]);
 
   const handleAddDoctor = async () => {
     try {
-        const response = await axios.post('http://192.168.1.14:5000/api/v1/doctors/doctor', newDoctor);
+        const response = await axios.post(`http://${ipAddress}:5000/api/v1/doctors/doctor`, newDoctor);
         console.log('Doctor added:', response.data);
         // Reset form or update state as needed
         Alert.alert('Doctor added successfully');
@@ -86,7 +87,7 @@ const [specializations, setSpecializations] = useState([]);
       { text: 'Cancel' },
       { text: 'OK', onPress: async () => {
           try {
-            await axios.delete(`http://192.168.1.14:5000/api/v1/doctors/doctor/${id}`);
+            await axios.delete(`http://${ipAddress}:5000/api/v1/doctors/doctor/${id}`);
             setDoctors(doctors.filter(doctor => doctor._id !== id));
              Alert.alert('Doctor deleted successfully');
 
@@ -97,7 +98,7 @@ const [specializations, setSpecializations] = useState([]);
     ]);
   };
 const handleEditDoctor = (id: string) => {
-  Alert.alert('EditDoctor', `coming soon`)
+  Alert.alert('EditDoctor', 'coming soon');
 };
 
 

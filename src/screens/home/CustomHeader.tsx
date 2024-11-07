@@ -6,7 +6,7 @@ import Icon from 'react-native-vector-icons/Ionicons'; // Import Ionicons
 
 const CustomHeader = ({ title, imageUri, location ,hospital }) => {
     const navigation = useNavigation(); // Hook to get navigation object
-console.log(location)
+console.log(location);
     return (
         <View style={styles.headerContainer}>
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>

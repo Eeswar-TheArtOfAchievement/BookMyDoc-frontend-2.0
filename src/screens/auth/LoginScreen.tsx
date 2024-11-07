@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert , Image, Dimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ActivityIndicator } from 'react-native';
+import ipAddress from '../../../config/ipConfig';
 
 const { width, height } = Dimensions.get('window');
 
@@ -14,7 +15,7 @@ const LoginScreen = ({navigation}) => {
     if (email && password) {
       setLoading(true);
         try {
-            const response = await fetch('http://192.168.1.14:5000/api/v1/auth/login', {
+            const response = await fetch(`http://${ipAddress}:5000/api/v1/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -160,7 +161,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-   
+
   },
   logo: {
     width: width * 1,

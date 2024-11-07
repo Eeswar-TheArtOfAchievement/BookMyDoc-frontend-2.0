@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Button, FlatList, StyleSheet, Alert, TextInput, ScrollView } from 'react-native';
 import axios from 'axios';
 import { useAdmin } from '../../contexts/UserProvider';
+import ipAddress from '../../../config/ipConfig';
 
 
 interface Patient {
@@ -41,7 +42,7 @@ const { adminDetails , updateAdminDetails } = useAdmin();
 
   const fetchPatients = async () => {
     try {
-      const response = await axios.get('http://192.168.1.14:5000/api/v1/auth/users');
+      const response = await axios.get(`http://${ipAddress}:5000/api/v1/auth/users`);
       setPatients(response.data);
     } catch (error) {
       console.error('Error fetching patients:', error);
@@ -54,7 +55,7 @@ const { adminDetails , updateAdminDetails } = useAdmin();
 
   const handleAddPatient = async () => {
     try {
-        const response = await axios.post('http://192.168.1.14:5000/api/v1/auth/user', newPatient);
+        const response = await axios.post(`http://${ipAddress}:5000/api/v1/auth/user`, newPatient);
         console.log('patient added:', response.data);
         // Reset form or update state as needed
         Alert.alert('patient added successfully');
@@ -69,7 +70,7 @@ const { adminDetails , updateAdminDetails } = useAdmin();
       { text: 'Cancel' },
       { text: 'OK', onPress: async () => {
           try {
-            await axios.delete(`http://192.168.1.14:5000/api/v1/auth/user/${id}`);
+            await axios.delete(`http://${ipAddress}:5000/api/v1/auth/user/${id}`);
             setPatients(patients.filter(patient => patient._id !== id));
           } catch (error) {
             console.error('Error deleting patient:', error);

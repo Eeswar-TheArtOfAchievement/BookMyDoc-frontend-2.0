@@ -18,6 +18,7 @@ import {Calendar} from 'react-native-calendars';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useUser } from '../../contexts/UserProvider';
+import ipAddress from '../../../config/ipConfig';
 
 
 const DoctorDetailScreen = ({route, navigation}) => {
@@ -58,7 +59,7 @@ const DoctorDetailScreen = ({route, navigation}) => {
     }
 };
 const markedDates = {
-    [selectedDate]: { selected: true, marked: true, selectedColor: 'blue' }
+    [selectedDate]: { selected: true, marked: true, selectedColor: 'blue' },
 };
   const handleShowCalendar = () => {
     setShowCalendar(!showCalendar);
@@ -83,7 +84,7 @@ const markedDates = {
       const fetchTimeSlots = async () => {
         try {
           const response = await axios.get(
-            'http://192.168.1.14:5000/api/v1/appointments/timeslots',
+            `http://${ipAddress}:5000/api/v1/appointments/timeslots`,
             {
               params: {
                 date: selectedDate,
@@ -126,7 +127,7 @@ const markedDates = {
     };
     try {
         // Send the appointment data to your backend API
-        const response1 = await axios.get('http://192.168.1.14:5000/api/v1/appointments/check', {
+        const response1 = await axios.get(`http://${ipAddress}:5000/api/v1/appointments/check`, {
             params: {
                 doctorId: doctor._id,
                 date: selectedDate,
@@ -139,7 +140,7 @@ const markedDates = {
             return;
         }
       const response = await axios.post(
-        'http://192.168.1.14:5000/api/v1/appointments/book',
+        `http://${ipAddress}:5000/api/v1/appointments/book`,
         appointmentData,
       );
       if (response.status === 201) {

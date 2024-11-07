@@ -21,6 +21,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DoctorsReports from '../screens/admin/DoctorsReports';
 import UserReports from '../screens/admin/UserReports';
+import ipAddress from '../../config/ipConfig';
 const AdminDrawer = createDrawerNavigator();
 
 // Define a separate function for the icons
@@ -30,6 +31,7 @@ const getDrawerIcon = name => {
 const CustomDrawerContent = props => {
   const {adminDetails, updateAdminDetails} = useAdmin();
   const [formattedDateOfBirth, setFormattedDateOfBirth] = useState(''); // State to hold formatted date
+
   useEffect(() => {
     const fetchAdminData = async () => {
       try {
@@ -38,7 +40,7 @@ const CustomDrawerContent = props => {
         if (token) {
           // Fetch user details using the token
           const adminResponse = await fetch(
-            'http://192.168.1.14:5000/api/v1/admin/admin1',
+            `http://${ipAddress}:5000/api/v1/admin/admin1`,
             {
               method: 'GET',
               headers: {
@@ -109,7 +111,7 @@ const CustomDrawerContent = props => {
   return (
     <DrawerContentScrollView {...props} contentContainerStyle={{flex: 1}}>
       <View style={styles.profileContainer}>
-      <Image 
+      <Image
           source={{ uri: profileImageUri }} // Replace with your background image URL
           style={styles.backgroundImage}
         />

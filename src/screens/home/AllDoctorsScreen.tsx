@@ -1,10 +1,11 @@
-import { Alert, Button, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Button, Image, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import axios from 'axios';
 import CustomHeader2 from './CustomHeader2';
 import { FlatList } from 'react-native-gesture-handler';
 import { Text } from 'react-native-paper';
+import ipAddress from '../../../config/ipConfig';
 const AllDoctorsScreen = ({navigation}) => {
     const [searchTerm, setSearchTerm] = useState('');
     const inputRef = useRef(null);
@@ -15,14 +16,14 @@ const AllDoctorsScreen = ({navigation}) => {
     useEffect(() => {
         const fetchLocations = async () => {
             try {
-                const response = await axios.get('http://192.168.1.14:5000/api/v1/doctors/locations');
+                const response = await axios.get(`http://${ipAddress}:5000/api/v1/doctors/locations`);
                 setLocations(response.data);
             } catch (error) {
                 console.error('Error fetching locations:', error);
                 Alert.alert('Error', 'Could not load locations.');
             }
         };
-        
+
         fetchLocations();
     }, []);
     useEffect(() => {
@@ -39,20 +40,24 @@ const AllDoctorsScreen = ({navigation}) => {
       }, [navigation , locations ,selectedLocation]);
       const renderItem = ({ item }) => (
         <View style={styles.appointmentCard}>
+            <Image
+        source={{uri: 'https://picsum.photos/200/300'}}
+        style={styles.image}
+        resizeMode="cover"
+      />
             <Text style={styles.doctorName}>{item.fullName}</Text>
-            <Text>Date: {new Date(item.appointmentDate).toLocaleDateString()}</Text>
-            <Text>Time: {item.startTime}</Text>
+            <Text style={styles.doctorName}>{item.specializations[0].specializationName}</Text>
             <Text>Location: {item.locationId.hospitalName} , {item.locationId.address} , {item.locationId.cityName}</Text>
-            <Text>Contact: {item.contact}</Text>
-            <Text>Status: {item.status}</Text>
+            <Text>Experience: {item.experience} Years</Text>
+            <Text>rating:⭐ {item.rating}</Text>
             <View style={styles.buttonContainer}>
-                <Button title="Cancel" color="#F44336" onPress={() => navigation.navigate('DoctorDetail', { doctor: item , locationId: item.locationId._id})}/>
+                <Button title="Book Now" color="blue" onPress={() => navigation.navigate('DoctorDetail', { doctor: item , locationId: item.locationId._id})}/>
             </View>
         </View>
     );
     // useEffect(() => {
     //     if (selectedLocation) {
-    //         fetch(`http://192.168.1.14:5000/api/v1/doctors/location/${selectedLocation}`)
+    //         fetch(`http://${ipAddress}:5000/api/v1/doctors/location/${selectedLocation}`)
     //         .then((response) => {
     //             if (!response.ok) {
     //                 throw new Error('Network response was not ok');
@@ -71,24 +76,24 @@ const AllDoctorsScreen = ({navigation}) => {
     //         setDoctors([]);
     //     }
     // }, [selectedLocation]);
-console.log("selectedLocation", selectedLocation)
+console.log('selectedLocation', selectedLocation);
     const fetchDoctors = async () => {
         try {
-            const response = await axios.get(`http://192.168.1.14:5000/api/v1/doctors/location/${selectedLocation}`); // Update to your server URL
+            const response = await axios.get(`http://${ipAddress}:5000/api/v1/doctors/location/${selectedLocation}`); // Update to your server URL
             setDoctors(response.data);
-            console.log("doctors", doctors)
+            console.log('doctors', doctors);
         } catch (error) {
             console.error(error);
-            Alert.alert('Error', 'Failed to fetch doctors');
+            // Alert.alert('Error', 'Failed to fyletch doctors');
         }
     };
     useEffect(() => {
         fetchDoctors();
     }, [selectedLocation]);
-console.log(doctors,"doctors")
+console.log(doctors,'doctors');
     const filteredDoctors = doctors.filter(doctor =>
         (doctor.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        doctor.locationId.cityName.toLowerCase().includes(searchTerm.toLowerCase())) 
+        doctor.locationId.cityName.toLowerCase().includes(searchTerm.toLowerCase()))
         // &&
         // (selectedValue === 'Confirmed' ? doctor.status === 'Confirmed' :
         //  selectedValue === 'Completed' ? doctor.status === 'Completed' :
@@ -134,6 +139,13 @@ const styles = StyleSheet.create({
         height: 50,
         padding: 10,
     },
+    image: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        paddingHorizontal: 10,
+        marginBottom: 10,
+      },
     searchCard:{
         borderColor: '#ddd',
         borderWidth: 2,

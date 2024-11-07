@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons'; // Import Ionicons
 import { Picker } from '@react-native-picker/picker';
 const CustomHeader2 = ({locations , selectedLocation,setSelectedLocation}) => {
-    console.log("first" , locations)
+    console.log('first' , locations);
     const navigation = useNavigation(); // Hook to get navigation object
     return (
         <View style={styles.headerContainer}>

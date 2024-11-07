@@ -17,6 +17,7 @@ import {FlatList} from 'react-native-gesture-handler';
 import Iconi from 'react-native-vector-icons/Ionicons';
 import {Picker} from '@react-native-picker/picker';
 import axios from 'axios';
+import ipAddress from '../../../config/ipConfig';
 import {CommonActions, useFocusEffect} from '@react-navigation/native';
 const HomeScreen = ({navigation}) => {
   const [locations, setLocations] = useState([]);
@@ -31,7 +32,7 @@ const HomeScreen = ({navigation}) => {
     const fetchLocations = async () => {
       try {
         const response = await axios.get(
-          'http://192.168.1.14:5000/api/v1/doctors/locations',
+          `http://${ipAddress}:5000/api/v1/doctors/locations`,
         );
         setLocations(response.data);
         const savedLocation = await AsyncStorage.getItem('selectedLocation');
@@ -53,76 +54,76 @@ const HomeScreen = ({navigation}) => {
       name: 'Cardiologist',
       image: require('../../assets/Cardiologist.png'),
       description: 'A cardiologist specializes in diagnosing and treating heart conditions. They handle diseases related to the heart and blood vessels.',
-      conditions: 'Heart disease, hypertension, arrhythmias, heart attack, coronary artery disease, heart failure, high cholesterol, stroke.'
+      conditions: 'Heart disease, hypertension, arrhythmias, heart attack, coronary artery disease, heart failure, high cholesterol, stroke.',
     },
     {
       id: '2',
       name: 'Dermatologist',
       image: require('../../assets/Dermatologist.png'),
       description: 'A dermatologist is a doctor who specializes in the diagnosis and treatment of skin disorders, hair, and nail problems.',
-      conditions: 'Acne, eczema, psoriasis, rosacea, skin cancer, rashes, dandruff, fungal infections, nail disorders.'
+      conditions: 'Acne, eczema, psoriasis, rosacea, skin cancer, rashes, dandruff, fungal infections, nail disorders.',
     },
     {
       id: '3',
       name: 'Pediatrician',
       image: require('../../assets/Pediatrician.png'),
       description: 'A pediatrician specializes in the care of infants, children, and adolescents. They manage physical, behavioral, and developmental concerns.',
-      conditions: 'Common cold, asthma, ADHD, childhood obesity, developmental delays, allergies, immunizations, infections.'
+      conditions: 'Common cold, asthma, ADHD, childhood obesity, developmental delays, allergies, immunizations, infections.',
     },
     {
       id: '4',
       name: 'Orthopedic',
       image: require('../../assets/Orthopedic.png'),
       description: 'An orthopedic surgeon treats injuries and disorders of the musculoskeletal system, including bones, joints, muscles, and ligaments.',
-      conditions: 'Fractures, arthritis, back pain, osteoporosis, sports injuries, joint replacement, tendonitis, scoliosis, carpal tunnel syndrome.'
+      conditions: 'Fractures, arthritis, back pain, osteoporosis, sports injuries, joint replacement, tendonitis, scoliosis, carpal tunnel syndrome.',
     },
     {
       id: '5',
       name: 'Neurologist',
       image: require('../../assets/Neurologist.png'),
       description: 'A neurologist diagnoses and treats disorders of the brain, spinal cord, nerves, and muscles, including conditions related to the nervous system.',
-      conditions: 'Migraine, epilepsy, Parkinson\'s disease, multiple sclerosis, Alzheimer\'s disease, stroke, nerve disorders, neuropathy.'
+      conditions: 'Migraine, epilepsy, Parkinson\'s disease, multiple sclerosis, Alzheimer\'s disease, stroke, nerve disorders, neuropathy.',
     },
     {
       id: '6',
       name: 'Oncologist',
       image: require('../../assets/Oncologist.png'),
       description: 'An oncologist specializes in the diagnosis and treatment of cancer. They provide chemotherapy, radiation therapy, and manage the care of cancer patients.',
-      conditions: 'Breast cancer, lung cancer, prostate cancer, leukemia, lymphoma, colon cancer, skin cancer, brain cancer, cancer metastasis.'
+      conditions: 'Breast cancer, lung cancer, prostate cancer, leukemia, lymphoma, colon cancer, skin cancer, brain cancer, cancer metastasis.',
     },
     {
       id: '7',
       name: 'Gastroenterologist',
       image: require('../../assets/Gastroenterologist.png'),
       description: 'A gastroenterologist treats disorders related to the digestive system, including the stomach, intestines, liver, and pancreas.',
-      conditions: 'Acid reflux, irritable bowel syndrome (IBS), Crohn\'s disease, ulcerative colitis, celiac disease, hepatitis, gallstones, pancreatitis.'
+      conditions: 'Acid reflux, irritable bowel syndrome (IBS), Crohn\'s disease, ulcerative colitis, celiac disease, hepatitis, gallstones, pancreatitis.',
     },
     {
       id: '8',
       name: 'Psychiatrist',
       image: require('../../assets/Psychiatrist.png'),
       description: 'A psychiatrist is a medical doctor who specializes in diagnosing and treating mental health disorders, including emotional, behavioral, and cognitive issues.',
-      conditions: 'Depression, anxiety, schizophrenia, bipolar disorder, OCD, PTSD, eating disorders, ADHD, substance abuse, insomnia.'
+      conditions: 'Depression, anxiety, schizophrenia, bipolar disorder, OCD, PTSD, eating disorders, ADHD, substance abuse, insomnia.',
     },
     {
       id: '9',
       name: 'Ophthalmologist',
       image: require('../../assets/Ophthalmologist.png'),
       description: 'An ophthalmologist is a medical doctor specializing in the diagnosis and treatment of eye diseases and vision care. They also perform eye surgeries.',
-      conditions: 'Glaucoma, cataracts, macular degeneration, diabetic retinopathy, eye infections, astigmatism, eye injuries, dry eyes.'
+      conditions: 'Glaucoma, cataracts, macular degeneration, diabetic retinopathy, eye infections, astigmatism, eye injuries, dry eyes.',
     },
     {
       id: '10',
       name: 'Endocrinologist',
       image: require('../../assets/Endocrinologist.png'),
       description: 'An endocrinologist focuses on hormone-related diseases and conditions. They treat disorders of the endocrine glands such as thyroid, pancreas, and adrenal glands.',
-      conditions: 'Diabetes, hypothyroidism, hyperthyroidism, adrenal disorders, polycystic ovary syndrome (PCOS), osteoporosis, metabolic syndrome.'
+      conditions: 'Diabetes, hypothyroidism, hyperthyroidism, adrenal disorders, polycystic ovary syndrome (PCOS), osteoporosis, metabolic syndrome.',
     },
   ];
 
   const renderItem = ({item}) => (
     <View style={styles.itemContainer}>
-      <TouchableOpacity 
+      <TouchableOpacity
         onPress={() => navigation.navigate('SpecializationDetail', {item: item})}
       >
         <Image source={item.image} style={styles.image1} />
@@ -130,8 +131,8 @@ const HomeScreen = ({navigation}) => {
       </TouchableOpacity>
     </View>
   );
-  
-console.log("hii", doctorDetails)
+
+console.log('hii', doctorDetails);
   const renderDoctorCard = ({item}) => (
     <View style={styles.doctorCard}>
       <Image
@@ -182,7 +183,7 @@ console.log("hii", doctorDetails)
         if (token) {
           // Fetch user details using the token
           const userResponse = await fetch(
-            'http://192.168.1.14:5000/api/v1/auth/user',
+            `http://${ipAddress}:5000/api/v1/auth/user`,
             {
               method: 'GET',
               headers: {
@@ -237,7 +238,7 @@ console.log("hii", doctorDetails)
     fetchUserData();
   }, []);
   useEffect(() => {
-    fetch('http://192.168.1.14:5000/api/v1/doctors') // Adjust the endpoint as necessary
+    fetch(`http://${ipAddress}:5000/api/v1/doctors`) // Adjust the endpoint as necessary
       .then(response => response.json())
       .then(data => {
         setDoctorDetails(data); // Assuming data is an array of location objects

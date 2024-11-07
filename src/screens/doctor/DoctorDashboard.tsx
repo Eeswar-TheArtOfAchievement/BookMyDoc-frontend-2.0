@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, {useEffect, useState} from 'react';
 import {  View,  Text,  StyleSheet,  Button,  Alert,  FlatList,  TouchableOpacity,  ActivityIndicator,  Image } from 'react-native';
 import { useDoctor } from '../../contexts/UserProvider';
+import ipAddress from '../../../config/ipConfig';
 
 const DoctorDashboard = ({navigation}) => {
     const {doctorDetails , updateDoctorDetails} = useDoctor();
@@ -20,7 +21,7 @@ const DoctorDashboard = ({navigation}) => {
         return;
       }
       const response = await fetch(
-        'http://192.168.1.14:5000/api/v1/doctors/dashboard',
+        `http://${ipAddress}:5000/api/v1/doctors/dashboard`,
         {
           method: 'GET',
           headers: {Authorization: `Bearer ${token}`},
@@ -103,7 +104,6 @@ const styles = StyleSheet.create({
         width: '50%',
         padding: 10,
     },
-    
     iconContainer: {
       width: '30%', // 230% of the card size here means you can adjust this as needed
       justifyContent: 'center',

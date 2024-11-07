@@ -10,6 +10,7 @@ import MyPatientsScreen from '../screens/doctor/MyPatientsScreen';
 import DoctorProfileScreen from '../screens/doctor/DoctorProfileScreen';
 import {DoctorProvider, useDoctor} from '../contexts/UserProvider';
 import AvailabilityScreen from '../screens/doctor/AvailabilityScreen';
+import ipAddress from '../../config/ipConfig';
 const DoctorDrawer = createDrawerNavigator();
 
 // Define a separate function for the icons
@@ -27,7 +28,7 @@ const CustomDrawerContent = props => {
         if (token) {
           // Fetch user details using the token
           const doctorResponse = await fetch(
-            'http://192.168.1.14:5000/api/v1/doctors/doctor1',
+            `http://${ipAddress}:5000/api/v1/doctors/doctor1`,
             {
               method: 'GET',
               headers: {
