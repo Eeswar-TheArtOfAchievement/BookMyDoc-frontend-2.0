@@ -12,7 +12,7 @@ const OtpScreen = ({ route, navigation }) => {
         }
         // Call your API to verify the OTP
         try {
-            const response = await fetch(`http://${ipAddress}:5000/api/v1/auth/verify-otp`, {
+            const response = await fetch(`http://${ipAddress}:5000/api/v1/public/verify-otp`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

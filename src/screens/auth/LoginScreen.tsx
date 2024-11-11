@@ -15,7 +15,7 @@ const LoginScreen = ({navigation}) => {
     if (email && password) {
       setLoading(true);
         try {
-            const response = await fetch(`http://${ipAddress}:5000/api/v1/auth/login`, {
+            const response = await fetch(`http://${ipAddress}:5000/api/v1/public/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

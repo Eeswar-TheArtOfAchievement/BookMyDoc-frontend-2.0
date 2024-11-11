@@ -53,7 +53,7 @@ const SignUpScreen = ({navigation}) => {
     // Success
     setErrorMessage('');
     try {
-      const response = await fetch(`http://${ipAddress}:5000/api/v1/auth/register`, {
+      const response = await fetch(`http://${ipAddress}:5000/api/v1/public/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
