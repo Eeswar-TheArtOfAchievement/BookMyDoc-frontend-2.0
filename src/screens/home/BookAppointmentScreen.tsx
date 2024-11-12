@@ -9,6 +9,7 @@ import { ActivityIndicator } from 'react-native';
 import axios from 'axios';
 import Toast from 'react-native-toast-message';
 import ipAddress from '../../../config/ipConfig';
+import BookButton from '../../components/BookButton';
 const BookAppointmentScreen = ({ route, navigation }) => {
     const { updateNewAppointments } = useNewAppointments();
     const { userDetails , updateUserDetails } = useUser();
@@ -299,6 +300,9 @@ const BookAppointmentScreen = ({ route, navigation }) => {
                 value={symptoms}
                 onChangeText={setSymptoms}
             />
+            <View>
+                <BookButton />
+            </View>
             <TouchableOpacity style={styles.button} onPress={handleSubmit} disabled={loading}>
                 {loading ? (
                     <ActivityIndicator size="small" color="#fff" />

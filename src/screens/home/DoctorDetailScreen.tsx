@@ -10,7 +10,6 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import CustomHeader from './CustomHeader';
-import HorizontalDatepicker from '@awrminkhodaei/react-native-horizontal-datepicker';
 import {Pressable, ScrollView} from 'react-native-gesture-handler';
 import axios from 'axios';
 import Toast from 'react-native-toast-message';
