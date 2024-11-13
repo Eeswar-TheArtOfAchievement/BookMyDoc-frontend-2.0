@@ -3,10 +3,8 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import HomeScreen from '../screens/home/HomeScreen';
 import BookAppointmentScreen from '../screens/home/BookAppointmentScreen';
 import MyAppointmentsScreen from '../screens/home/MyAppointmentsScreen';
-import ProfileScreen from '../screens/profile/ProfileScreen';
+import ProfileScreen from '../screens/home/ProfileScreen';
 import {IconButton} from 'react-native-paper';
-import {StyleSheet} from 'react-native';
-import App from '../App';
 const Tab = createBottomTabNavigator();
 
 // TabIcon component to render icons based on the focused state

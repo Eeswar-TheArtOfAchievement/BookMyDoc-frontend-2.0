@@ -42,15 +42,12 @@ const { adminDetails , updateAdminDetails } = useAdmin();
 
   const fetchPatients = async () => {
     try {
-      const response = await axios.get(`http://${ipAddress}:5000/api/v1/auth/users`);
+      const response = await axios.get(`http://${ipAddress}:5000/api/v1/admin/users`);
       setPatients(response.data);
     } catch (error) {
       console.error('Error fetching patients:', error);
     }
   };
-
-
-
 
 
   const handleAddPatient = async () => {
@@ -70,7 +67,7 @@ const { adminDetails , updateAdminDetails } = useAdmin();
       { text: 'Cancel' },
       { text: 'OK', onPress: async () => {
           try {
-            await axios.delete(`http://${ipAddress}:5000/api/v1/auth/user/${id}`);
+            await axios.delete(`http://${ipAddress}:5000/api/v1/admin/user/${id}`);
             setPatients(patients.filter(patient => patient._id !== id));
           } catch (error) {
             console.error('Error deleting patient:', error);
