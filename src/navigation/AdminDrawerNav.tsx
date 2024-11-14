@@ -30,7 +30,7 @@ const getDrawerIcon = name => {
 };
 const CustomDrawerContent = props => {
   const {adminDetails, updateAdminDetails} = useAdmin();
-  const [formattedDateOfBirth, setFormattedDateOfBirth] = useState(''); // State to hold formatted date
+  const [formattedDateOfBirth, setFormattedDateOfBirth] = useState('');
 
   useEffect(() => {
     const fetchAdminData = async () => {

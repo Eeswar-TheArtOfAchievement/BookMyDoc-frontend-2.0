@@ -3,15 +3,13 @@ import { View, Text, Button, FlatList, StyleSheet, Alert, TextInput, ScrollView 
 import axios from 'axios';
 import { useAdmin } from '../../contexts/UserProvider';
 import ipAddress from '../../../config/ipConfig';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Patient {
   _id: string;
   fullName: string;
   email: string;
 }
-
-
 
 const UserReports: React.FC = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -42,13 +40,23 @@ const { adminDetails , updateAdminDetails } = useAdmin();
 
   const fetchPatients = async () => {
     try {
-      const response = await axios.get(`http://${ipAddress}:5000/api/v1/admin/users`);
+        const token = await AsyncStorage.getItem('token');
+        console.log(token)
+        if (!token) {
+          console.error('No token provided');
+          return;
+        }
+        const response = await axios.get(`http://${ipAddress}:5000/api/v1/admin/`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        
       setPatients(response.data);
     } catch (error) {
       console.error('Error fetching patients:', error);
     }
   };
-
 
   const handleAddPatient = async () => {
     try {
