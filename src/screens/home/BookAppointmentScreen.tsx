@@ -10,6 +10,7 @@ import axios from 'axios';
 import Toast from 'react-native-toast-message';
 import ipAddress from '../../../config/ipConfig';
 import BookButton from '../../components/BookButton';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const BookAppointmentScreen = ({ route, navigation }) => {
     const { updateNewAppointments } = useNewAppointments();
     const { userDetails , updateUserDetails } = useUser();
@@ -74,17 +75,25 @@ const BookAppointmentScreen = ({ route, navigation }) => {
 
     useEffect(() => {
         const fetchLocations = async () => {
-            try {
-                const response = await axios.get(`http://${ipAddress}:5000/api/v1/doctors/locations`);
-                setLocations(response.data);
-            } catch (error) {
-                console.error('Error fetching locations:', error);
-                Alert.alert('Error', 'Could not load locations.');
+          try {
+            const token = await AsyncStorage.getItem('token');
+            if (!token) {
+              Alert.alert('Authentication Error', 'No token found.');
+              return;
             }
+            const response = await axios.get(`http://${ipAddress}:5000/api/v1/doctors/locations`, {
+              headers: {
+                'Authorization': `Bearer ${token}`, // Include the JWT token here
+              },
+            });
+            setLocations(response.data);
+          } catch (error) {
+            console.error('Error fetching locations:', error);
+            Alert.alert('Error', 'Could not load locations.');
+          }
         };
-
         fetchLocations();
-    }, []);
+      }, []);
 
     useEffect(() => {
         if (selectedLocation) {

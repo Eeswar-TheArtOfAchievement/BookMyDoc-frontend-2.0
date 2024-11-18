@@ -13,13 +13,17 @@ import {
 import {useUser} from '../../contexts/UserProvider';
 import Swiper from 'react-native-swiper';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import Icons from 'react-native-vector-icons/MaterialIcons';
 import {FlatList} from 'react-native-gesture-handler';
 import Iconi from 'react-native-vector-icons/Ionicons';
 import {Picker} from '@react-native-picker/picker';
 import axios from 'axios';
 import ipAddress from '../../../config/ipConfig';
-import {CommonActions, useFocusEffect} from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
+import {useTheme} from '../../contexts/ThemeContext';
+
 const HomeScreen = ({navigation}) => {
+  const {theme, isDarkMode, toggleTheme} = useTheme();
   const [locations, setLocations] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState('');
   const {userDetails, updateUserDetails} = useUser();
@@ -31,8 +35,22 @@ const HomeScreen = ({navigation}) => {
   useEffect(() => {
     const fetchLocations = async () => {
       try {
+        // Get the token from AsyncStorage (or another secure location)
+        const token = await AsyncStorage.getItem('token');
+
+        if (!token) {
+          Alert.alert('Authentication Error', 'No token found.');
+          return;
+        }
+
+        // Include the token in the Authorization header
         const response = await axios.get(
           `http://${ipAddress}:5000/api/v1/doctors/locations`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
         );
         setLocations(response.data);
         const savedLocation = await AsyncStorage.getItem('selectedLocation');
@@ -53,107 +71,137 @@ const HomeScreen = ({navigation}) => {
       id: '1',
       name: 'Cardiologist',
       image: require('../../assets/Cardiologist.png'),
-      description: 'A cardiologist specializes in diagnosing and treating heart conditions. They handle diseases related to the heart and blood vessels.',
-      conditions: 'Heart disease, hypertension, arrhythmias, heart attack, coronary artery disease, heart failure, high cholesterol, stroke.',
+      description:
+        'A cardiologist specializes in diagnosing and treating heart conditions. They handle diseases related to the heart and blood vessels.',
+      conditions:
+        'Heart disease, hypertension, arrhythmias, heart attack, coronary artery disease, heart failure, high cholesterol, stroke.',
     },
     {
       id: '2',
       name: 'Dermatologist',
       image: require('../../assets/Dermatologist.png'),
-      description: 'A dermatologist is a doctor who specializes in the diagnosis and treatment of skin disorders, hair, and nail problems.',
-      conditions: 'Acne, eczema, psoriasis, rosacea, skin cancer, rashes, dandruff, fungal infections, nail disorders.',
+      description:
+        'A dermatologist is a doctor who specializes in the diagnosis and treatment of skin disorders, hair, and nail problems.',
+      conditions:
+        'Acne, eczema, psoriasis, rosacea, skin cancer, rashes, dandruff, fungal infections, nail disorders.',
     },
     {
       id: '3',
       name: 'Pediatrician',
       image: require('../../assets/Pediatrician.png'),
-      description: 'A pediatrician specializes in the care of infants, children, and adolescents. They manage physical, behavioral, and developmental concerns.',
-      conditions: 'Common cold, asthma, ADHD, childhood obesity, developmental delays, allergies, immunizations, infections.',
+      description:
+        'A pediatrician specializes in the care of infants, children, and adolescents. They manage physical, behavioral, and developmental concerns.',
+      conditions:
+        'Common cold, asthma, ADHD, childhood obesity, developmental delays, allergies, immunizations, infections.',
     },
     {
       id: '4',
       name: 'Orthopedic',
       image: require('../../assets/Orthopedic.png'),
-      description: 'An orthopedic surgeon treats injuries and disorders of the musculoskeletal system, including bones, joints, muscles, and ligaments.',
-      conditions: 'Fractures, arthritis, back pain, osteoporosis, sports injuries, joint replacement, tendonitis, scoliosis, carpal tunnel syndrome.',
+      description:
+        'An orthopedic surgeon treats injuries and disorders of the musculoskeletal system, including bones, joints, muscles, and ligaments.',
+      conditions:
+        'Fractures, arthritis, back pain, osteoporosis, sports injuries, joint replacement, tendonitis, scoliosis, carpal tunnel syndrome.',
     },
     {
       id: '5',
       name: 'Neurologist',
       image: require('../../assets/Neurologist.png'),
-      description: 'A neurologist diagnoses and treats disorders of the brain, spinal cord, nerves, and muscles, including conditions related to the nervous system.',
-      conditions: 'Migraine, epilepsy, Parkinson\'s disease, multiple sclerosis, Alzheimer\'s disease, stroke, nerve disorders, neuropathy.',
+      description:
+        'A neurologist diagnoses and treats disorders of the brain, spinal cord, nerves, and muscles, including conditions related to the nervous system.',
+      conditions:
+        "Migraine, epilepsy, Parkinson's disease, multiple sclerosis, Alzheimer's disease, stroke, nerve disorders, neuropathy.",
     },
     {
       id: '6',
       name: 'Oncologist',
       image: require('../../assets/Oncologist.png'),
-      description: 'An oncologist specializes in the diagnosis and treatment of cancer. They provide chemotherapy, radiation therapy, and manage the care of cancer patients.',
-      conditions: 'Breast cancer, lung cancer, prostate cancer, leukemia, lymphoma, colon cancer, skin cancer, brain cancer, cancer metastasis.',
+      description:
+        'An oncologist specializes in the diagnosis and treatment of cancer. They provide chemotherapy, radiation therapy, and manage the care of cancer patients.',
+      conditions:
+        'Breast cancer, lung cancer, prostate cancer, leukemia, lymphoma, colon cancer, skin cancer, brain cancer, cancer metastasis.',
     },
     {
       id: '7',
       name: 'Gastroenterologist',
       image: require('../../assets/Gastroenterologist.png'),
-      description: 'A gastroenterologist treats disorders related to the digestive system, including the stomach, intestines, liver, and pancreas.',
-      conditions: 'Acid reflux, irritable bowel syndrome (IBS), Crohn\'s disease, ulcerative colitis, celiac disease, hepatitis, gallstones, pancreatitis.',
+      description:
+        'A gastroenterologist treats disorders related to the digestive system, including the stomach, intestines, liver, and pancreas.',
+      conditions:
+        "Acid reflux, irritable bowel syndrome (IBS), Crohn's disease, ulcerative colitis, celiac disease, hepatitis, gallstones, pancreatitis.",
     },
     {
       id: '8',
       name: 'Psychiatrist',
       image: require('../../assets/Psychiatrist.png'),
-      description: 'A psychiatrist is a medical doctor who specializes in diagnosing and treating mental health disorders, including emotional, behavioral, and cognitive issues.',
-      conditions: 'Depression, anxiety, schizophrenia, bipolar disorder, OCD, PTSD, eating disorders, ADHD, substance abuse, insomnia.',
+      description:
+        'A psychiatrist is a medical doctor who specializes in diagnosing and treating mental health disorders, including emotional, behavioral, and cognitive issues.',
+      conditions:
+        'Depression, anxiety, schizophrenia, bipolar disorder, OCD, PTSD, eating disorders, ADHD, substance abuse, insomnia.',
     },
     {
       id: '9',
       name: 'Ophthalmologist',
       image: require('../../assets/Ophthalmologist.png'),
-      description: 'An ophthalmologist is a medical doctor specializing in the diagnosis and treatment of eye diseases and vision care. They also perform eye surgeries.',
-      conditions: 'Glaucoma, cataracts, macular degeneration, diabetic retinopathy, eye infections, astigmatism, eye injuries, dry eyes.',
+      description:
+        'An ophthalmologist is a medical doctor specializing in the diagnosis and treatment of eye diseases and vision care. They also perform eye surgeries.',
+      conditions:
+        'Glaucoma, cataracts, macular degeneration, diabetic retinopathy, eye infections, astigmatism, eye injuries, dry eyes.',
     },
     {
       id: '10',
       name: 'Endocrinologist',
       image: require('../../assets/Endocrinologist.png'),
-      description: 'An endocrinologist focuses on hormone-related diseases and conditions. They treat disorders of the endocrine glands such as thyroid, pancreas, and adrenal glands.',
-      conditions: 'Diabetes, hypothyroidism, hyperthyroidism, adrenal disorders, polycystic ovary syndrome (PCOS), osteoporosis, metabolic syndrome.',
+      description:
+        'An endocrinologist focuses on hormone-related diseases and conditions. They treat disorders of the endocrine glands such as thyroid, pancreas, and adrenal glands.',
+      conditions:
+        'Diabetes, hypothyroidism, hyperthyroidism, adrenal disorders, polycystic ovary syndrome (PCOS), osteoporosis, metabolic syndrome.',
     },
   ];
 
   const renderItem = ({item}) => (
-    <View style={styles.itemContainer}>
+    <View style={[styles.itemContainer, {backgroundColor: theme.background}]}>
       <TouchableOpacity
-        onPress={() => navigation.navigate('SpecializationDetail', {item: item})}
-      >
+        onPress={() =>
+          navigation.navigate('SpecializationDetail', {item: item})
+        }>
         <Image source={item.image} style={styles.image1} />
-        <Text style={styles.itemText}>{item.name}</Text>
+        <Text style={[styles.itemText, {color: theme.text}]}>{item.name}</Text>
       </TouchableOpacity>
     </View>
   );
 
-console.log('hii', doctorDetails);
+  console.log('hii', doctorDetails);
   const renderDoctorCard = ({item}) => (
-    <View style={styles.doctorCard}>
+    <View style={[styles.doctorCard, {backgroundColor: theme.background}]}>
       <Image
         source={{uri: 'https://picsum.photos/200/300'}}
         style={styles.image}
         resizeMode="cover"
       />
       <View>
-        <Text style={styles.doctorName}>{item.fullName}</Text>
+        <Text style={[styles.doctorName, {color: theme.text}]}>
+          {item.fullName}
+        </Text>
         <Text
           numberOfLines={1}
           ellipsizeMode="tail"
-          style={styles.doctorSpecialty}>
+          style={[styles.doctorSpecialty, {color: theme.text}]}>
           {item.specializations[0]?.specializationName || 'No Specialization'}
         </Text>
-        <Text style={styles.doctorSpecialty}> ⭐{item.rating} </Text>
+        <Text style={[styles.doctorSpecialty, {color: theme.text}]}>
+          {' '}
+          ⭐{item.rating}{' '}
+        </Text>
       </View>
       <TouchableOpacity
-        style={styles.button}
-        onPress={() => navigation.navigate('DoctorDetail', { doctor: item , locationId: item.locationId._id})}
-        >
+        style={[styles.button, {backgroundColor: theme.primary}]}
+        onPress={() =>
+          navigation.navigate('DoctorDetail', {
+            doctor: item,
+            locationId: item.locationId._id,
+          })
+        }>
         <Text style={styles.buttonText}>Book Now</Text>
       </TouchableOpacity>
     </View>
@@ -237,33 +285,49 @@ console.log('hii', doctorDetails);
     };
     fetchUserData();
   }, []);
+
   useEffect(() => {
-    fetch(`http://${ipAddress}:5000/api/v1/doctors`) // Adjust the endpoint as necessary
-      .then(response => response.json())
-      .then(data => {
-        setDoctorDetails(data); // Assuming data is an array of location objects
-      })
-      .catch(error => {
-        console.error('Error fetching locations:', error);
-        Alert.alert('Error', 'Could not load locations.');
-      });
+    const fetchDoctorDetails = async () => {
+      try {
+        // Get the token from AsyncStorage (or another secure location)
+        const token = await AsyncStorage.getItem('token');
+        if (!token) {
+          Alert.alert('Authentication Error', 'No token found.');
+          return;
+        }
+        // Make the GET request to fetch doctor details with the token in the Authorization header
+        const response = await axios.get(`http://${ipAddress}:5000/api/v1/doctors`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        setDoctorDetails(response.data); // Assuming data is an array of doctor details
+      } catch (error) {
+        console.error('Error fetching doctor details:', error);
+        Alert.alert('Error', 'Could not load doctor details.');
+      }
+    };
+    fetchDoctorDetails();
   }, []);
+
   const handleLocationChange = async itemValue => {
     setSelectedLocation(itemValue);
     // Save selected location to AsyncStorage
     await AsyncStorage.setItem('selectedLocation', itemValue);
   };
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView style={[styles.container, {backgroundColor: theme.background}]}
+      showsVerticalScrollIndicator={false}>
       <View style={styles.locationContainer}>
         <View>
-          <Icon name="map-marker" size={30} color="#007bff" />
+          <Icon name="map-marker" size={30} color={theme.primary} />
         </View>
         <View>
           <Picker
             selectedValue={selectedLocation}
             onValueChange={handleLocationChange}
-            style={styles.picker}>
+            style={[ styles.picker, {backgroundColor: theme.card, color: theme.text},
+            ]}>
             <Picker.Item label="Select a location" value="" />
             {locations.map(location => (
               <Picker.Item
@@ -279,8 +343,8 @@ console.log('hii', doctorDetails);
         autoplay={true}
         autoplayTimeout={4}
         style={styles.swiperContainer}
-        dotColor="#ccc"
-        activeDotColor="red">
+        dotColor={theme.border}
+        activeDotColor={theme.primary}>
         <View style={styles.slider}>
           <Image
             source={{
@@ -315,13 +379,10 @@ console.log('hii', doctorDetails);
         </View>
       </Swiper>
       <View style={styles.heading}>
-        <Text style={styles.headText}>Top Doctors</Text>
-        <TouchableOpacity
-        // style={styles.button}
-        onPress={() => navigation.navigate('Find Doctors')}
-        >
-        <Text style={styles.subText}>See All</Text>
-      </TouchableOpacity>
+        <Text style={[styles.headText, {color: theme.text}]}>Top Doctors</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('Find Doctors')}>
+          <Text style={[styles.subText, {color: theme.primary}]}>See All</Text>
+        </TouchableOpacity>
       </View>
       <FlatList
         data={doctorDetails}
@@ -334,7 +395,9 @@ console.log('hii', doctorDetails);
       {/* <TouchableOpacity style={styles.appointmentButton} onPress={() => navigation.navigate('My-Appointments')}>
                 <Text style={styles.appointmentButtonText}>View My Appointments</Text>
             </TouchableOpacity> */}
-      <Text style={styles.headText}>We specialize in these fields</Text>
+      <Text style={[styles.headText, {color: theme.text}]}>
+        We specialize in these fields
+      </Text>
       <FlatList
         data={doctorsSpecializations}
         renderItem={renderItem}
@@ -345,7 +408,7 @@ console.log('hii', doctorDetails);
         style={styles.grid}
       />
       <View style={styles.footerCard}>
-        <Text style={styles.subText2}>
+        <Text style={[styles.subText2, {color: theme.text}]}>
           Our community of doctors and patients drive us to create technologies
           for better and affordable healthcare
         </Text>
@@ -356,25 +419,33 @@ console.log('hii', doctorDetails);
           <View style={styles.aboutContainer}>
             <View style={styles.aboutContainer1}>
               <Iconi name="person" size={30} color="#1fb1bd" />
-              <Text style={styles.subText}>Our Users</Text>
-              <Text style={styles.text}>30 Crores</Text>
+              <Text style={[styles.subText, {color: theme.text}]}>
+                Our Users
+              </Text>
+              <Text style={[styles.text, {color: theme.text}]}>30 Crores</Text>
             </View>
             <View style={styles.aboutContainer1}>
               <Iconi name="bag-add" size={30} color="#1fb1bd" />
-              <Text style={styles.subText}>Our Doctors</Text>
-              <Text style={styles.text}>1 Lakh</Text>
+              <Text style={[styles.subText, {color: theme.text}]}>
+                Our Doctors
+              </Text>
+              <Text style={[styles.text, {color: theme.text}]}>1 Lakh</Text>
             </View>
           </View>
           <View style={styles.aboutContainer}>
             <View style={styles.aboutContainer1}>
               <Iconi name="add-circle" size={30} color="#1fb1bd" />
-              <Text style={styles.subText}>Hospitals</Text>
-              <Text style={styles.text}>20,000</Text>
+              <Text style={[styles.subText, {color: theme.text}]}>
+                Hospitals
+              </Text>
+              <Text style={[styles.text, {color: theme.text}]}>20,000</Text>
             </View>
             <View style={styles.aboutContainer1}>
               <Iconi name="chatbox-ellipses" size={30} color="#1fb1bd" />
-              <Text style={styles.subText}>Patient Stories</Text>
-              <Text style={styles.text}>40 Lakh</Text>
+              <Text style={[styles.subText, {color: theme.text}]}>
+                Patient Stories
+              </Text>
+              <Text style={[styles.text, {color: theme.text}]}>40 Lakh</Text>
             </View>
           </View>
         </View>
@@ -384,27 +455,35 @@ console.log('hii', doctorDetails);
               source={require('../../assets/logo.png')}
               style={styles.logo}
             />
-            <Text style={styles.headText}>&nbsp;BookMyDoc</Text>
+            <Text style={[styles.headText, {color: theme.text}]}>
+              BookMyDoc
+            </Text>
           </View>
-          <Text style={styles.subText2}>
+          <Text style={[styles.subText2, {color: theme.text}]}>
             Our vision is to help mankind live healthier, longer lives by making
             quality healthcare accessible, affordable and convenient
           </Text>
           <View style={styles.subText1}>
-            <Text style={styles.subText}>Made with</Text>
-            <Iconi name="heart" size={30} color="#1fb1bd" />
-            <Text style={styles.subText}>in Savisettipalli</Text>
+            <Text style={[styles.subText, {color: theme.text}]}>Made with</Text>
+            <Iconi name="heart" size={30} color={theme.primary} />
+            <Text style={[styles.subText, {color: theme.text}]}>
+              in Savisettipalli
+            </Text>
           </View>
         </View>
       </View>
+      <TouchableOpacity
+        style={[styles.fab, {backgroundColor: theme.primary}]}
+        onPress={toggleTheme}>
+        <Icons name="brightness-6" size={30} color={theme.text} />
+      </TouchableOpacity>
     </ScrollView>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7F9FC',
+    // backgroundColor: '#F7F9FC',
     paddingHorizontal: 20,
     paddingTop: 10,
     paddingBottom: 20,
@@ -421,7 +500,7 @@ const styles = StyleSheet.create({
   picker: {
     height: 50,
     width: 200,
-    backgroundColor: '#f7f9fc',
+    // backgroundColor: '#f7f9fc',
     borderRadius: 5,
     borderColor: '#ddd',
     borderWidth: 1,
@@ -461,7 +540,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 20,
-    color: '#7D8CA3',
+    // color: '#7D8CA3',
     marginBottom: 20,
   },
 
@@ -471,7 +550,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#',
   },
   aboutContainer: {
-    marginTop:10,
+    marginTop: 10,
     flexDirection: 'row',
     justifyContent: 'flex-start',
     marginBottom: 20,
@@ -493,11 +572,11 @@ const styles = StyleSheet.create({
   headText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#2E3A47',
+    // color: '#2E3A47',
   },
   subText: {
     fontSize: 16,
-    color: 'black',
+    // color: 'black',
   },
   subText2: {
     fontSize: 24,
@@ -531,7 +610,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     height: 240,
     paddingVertical: 15,
-    backgroundColor: '#fff',
+    // backgroundColor: '#fff',
     borderRadius: 10,
     marginRight: 15,
     elevation: 3,
@@ -544,14 +623,14 @@ const styles = StyleSheet.create({
   doctorName: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#2E3A47',
+    // color: '#2E3A47',
   },
   doctorSpecialty: {
     fontSize: 14,
-    color: '#7D8CA3',
+    // color: '#7D8CA3',
   },
   button: {
-    backgroundColor: '#007bff',
+    // backgroundColor: '#007bff',
     borderRadius: 5,
     paddingVertical: 8,
     paddingHorizontal: 12,
@@ -570,6 +649,21 @@ const styles = StyleSheet.create({
   appointmentButtonText: {
     color: '#fff',
     fontSize: 16,
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 30,
+    right: 30,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5, // For Android shadow
   },
 });
 

@@ -19,8 +19,8 @@ import AllDoctorsScreen from '../screens/home/AllDoctorsScreen';
 import SpecializationDetail from '../screens/home/SpecializationDetail';
 
 const Stack = createStackNavigator();
-
 const AuthStackNavigator = () => {
+
     const [isLoggedIn, setIsLoggedIn] = React.useState(null);
     const [userRole, setUserRole] = React.useState(null);
 

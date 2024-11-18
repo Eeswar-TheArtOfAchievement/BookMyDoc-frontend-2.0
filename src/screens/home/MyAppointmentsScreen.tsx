@@ -5,6 +5,7 @@ import { useNewAppointments, useUser } from '../../contexts/UserProvider';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Picker } from '@react-native-picker/picker';
 import ipAddress from '../../../config/ipConfig';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const MyAppointmentsScreen = () => {
     const { newAppointments } = useNewAppointments();
@@ -22,11 +23,19 @@ const MyAppointmentsScreen = () => {
     const { userDetails , updateUserDetails } = useUser();
     const [patientId, setpatientId] = useState(userDetails.id);
     // Fetch appointments on mount
-    console.log(patientId , 'h');
     const fetchAppointments = async () => {
         try {
-            const response = await axios.get(`http://${ipAddress}:5000/api/v1/appointments/patient/${patientId}`); // Update to your server URL
-            setAppointments(response.data);
+            const token = await AsyncStorage.getItem('token');
+            if (!token) {
+              Alert.alert('Authentication Error', 'No token found.');
+              return;
+            }
+            const response = await axios.get(`http://${ipAddress}:5000/api/v1/appointments/patient/${patientId}`, {
+              headers: {
+                'Authorization': `Bearer ${token}`, // Add JWT token in Authorization header
+              },
+            });
+          setAppointments(response.data);
 
         } catch (error) {
             console.error(error);
@@ -36,7 +45,6 @@ const MyAppointmentsScreen = () => {
     useEffect(() => {
         fetchAppointments();
     }, [newAppointments]);
-    console.log(appointments);
 
     const filteredAppointments = appointments.filter(appointment =>
         (appointment.doctorId.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||

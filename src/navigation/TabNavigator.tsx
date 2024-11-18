@@ -5,10 +5,12 @@ import BookAppointmentScreen from '../screens/home/BookAppointmentScreen';
 import MyAppointmentsScreen from '../screens/home/MyAppointmentsScreen';
 import ProfileScreen from '../screens/home/ProfileScreen';
 import {IconButton} from 'react-native-paper';
+import { useTheme } from '../contexts/ThemeContext';
 const Tab = createBottomTabNavigator();
 
 // TabIcon component to render icons based on the focused state
-const TabIcon = ({route, focused, color}) => {
+const TabIcon = ({route, focused }) => {
+    const {theme} = useTheme();
   let iconName;
 
   // Determine icon name based on the focused state
@@ -22,20 +24,25 @@ const TabIcon = ({route, focused, color}) => {
     iconName = focused ? 'account' : 'account-outline';
   }
 
-  return <IconButton icon={iconName} color={color} />;
+  return <IconButton icon={iconName} color={theme.text} />;
 };
 
 // Tab Navigator definition
 const TabNavigator = ({ navigation }) => {
+    const {theme} = useTheme();
   return (
     <Tab.Navigator
       screenOptions={({route}) => ({
         tabBarIcon: props => <TabIcon {...props} route={route} />,
-        tabBarActiveTintColor: '#1878F1',
-        tabBarInactiveTintColor: '#000',
-        tabBarLabelStyle: {fontSize: 13},
-        tabBarActiveBackgroundColor: '#f7f9fc',
-        tabBarItemStyle: {color: '#000', paddingBottom : 7},
+        tabBarActiveTintColor: theme.white , //  '#1878F1',
+        tabBarInactiveTintColor:  theme.text, //'#000',
+        tabBarLabelStyle: {fontSize: 13 , color: theme.text },
+        tabBarActiveBackgroundColor: theme.background, // '#f7f9fc',
+        tabBarItemStyle: { paddingBottom : 7},
+        tabBarStyle: {
+            backgroundColor: theme.background, // Tab bar background color based on theme
+            borderTopColor: theme.border, // Border color for the top of the tab bar
+          },
       })}>
       <Tab.Screen
         name="Home"
