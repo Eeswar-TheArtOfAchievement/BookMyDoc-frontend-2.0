@@ -57,10 +57,10 @@ const DoctorDashboard = ({navigation}) => {
   }
 
   const data = [
-    { id: '1', icon: require('../../assets/logo.png'), heading: 'Coming appointments', number: '123', date: '2023-11-01' },
-    { id: '2', icon:require('../../assets/logo.png'), heading: 'Total Appointments', number: '456', date: '2023-11-02' },
-    { id: '3', icon: require('../../assets/logo.png'), heading: 'Update schedule', number: '789', date: '2023-11-03' },
-    { id: '4', icon: require('../../assets/logo.png'), heading: 'Rating', number: '4.5', date: '2023-11-04' },
+    { id: '1', icon: require('../../assets/icons/logo.png'), heading: 'Coming appointments', number: '123', date: '2023-11-01' },
+    { id: '2', icon:require('../../assets/icons/logo.png'), heading: 'Total Appointments', number: '456', date: '2023-11-02' },
+    { id: '3', icon: require('../../assets/icons/logo.png'), heading: 'Update schedule', number: '789', date: '2023-11-03' },
+    { id: '4', icon: require('../../assets/icons/logo.png'), heading: 'Rating', number: '4.5', date: '2023-11-04' },
 
   ];
   return (

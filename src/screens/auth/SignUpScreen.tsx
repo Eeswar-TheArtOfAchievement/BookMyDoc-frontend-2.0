@@ -78,7 +78,7 @@ const SignUpScreen = ({navigation}) => {
     <View>
       {/* Logo/Image */}
       <Image
-        source={require('../../assets/asset2.png')}
+        source={require('../../assets/images/asset2.png')}
         style={styles.logo}
         />
     </View>

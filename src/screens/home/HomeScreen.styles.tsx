@@ -1,0 +1,186 @@
+import { StyleSheet } from 'react-native';
+
+export default StyleSheet.create({
+    container: {
+      flex: 1,
+      // backgroundColor: '#F7F9FC',
+      paddingHorizontal: 20,
+      paddingTop: 10,
+      paddingBottom: 20,
+    },
+    locationContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+      marginBottom: 10,
+    },
+    swiperContainer: {
+      height: 250,
+    },
+    picker: {
+      height: 50,
+      width: 200,
+      // backgroundColor: '#f7f9fc',
+      borderRadius: 5,
+      borderColor: '#ddd',
+      borderWidth: 1,
+    },
+    slider: {
+      flex: 1,
+      borderRadius: 20,
+    },
+    grid: {
+      flex: 0,
+      flexDirection: 'row',
+      // padding: 10,
+    },
+    itemContainer: {
+      flex: 1,
+      alignItems: 'center',
+      margin: 5,
+      padding: 10,
+      backgroundColor: '#f9f9f9',
+      borderRadius: 8,
+      elevation: 2,
+    },
+    image1: {
+      width: 150,
+      height: 100,
+      borderRadius: 8,
+      marginBottom: 10,
+    },
+    itemText: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      textAlign: 'center',
+    },
+    logo: {
+      height: 30,
+      width: 30,
+    },
+    text: {
+      fontSize: 20,
+      // color: '#7D8CA3',
+      marginBottom: 20,
+    },
+    footerCard: {
+      marginTop: 10,
+      marginBottom: 40,
+      backgroundColor: '#',
+    },
+    aboutContainer: {
+      marginTop: 10,
+      flexDirection: 'row',
+      justifyContent: 'flex-start',
+      marginBottom: 20,
+    },
+    aboutContainer1: {
+      width: '53%',
+    },
+    banner: {
+      width: '100%',
+      height: 200,
+      borderRadius: 10,
+    },
+    heading: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginVertical: 20,
+    },
+    headText: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      // color: '#2E3A47',
+    },
+    subText: {
+      fontSize: 16,
+      // color: 'black',
+    },
+    subText2: {
+      fontSize: 24,
+      color: 'black',
+    },
+    subText1: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: 10,
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: 'bold',
+      marginVertical: 10,
+      color: '#2E3A47',
+    },
+    subtitle: {
+      fontSize: 17,
+      color: '#7D8CA3',
+      marginBottom: 20,
+    },
+    doctorList: {},
+    image: {
+      width: 100,
+      height: 100,
+      borderRadius: 50,
+      paddingHorizontal: 10,
+      marginBottom: 10,
+    },
+    doctorCard: {
+      marginBottom: 20,
+      height: 240,
+      paddingVertical: 15,
+      // backgroundColor: '#fff',
+      borderRadius: 10,
+      marginRight: 15,
+      elevation: 3,
+      width: 155,
+      alignItems: 'center',
+      shadowOpacity: 0.25,
+      shadowRadius: 3.5,
+    },
+    doctorName: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      // color: '#2E3A47',
+    },
+    doctorSpecialty: {
+      fontSize: 14,
+      // color: '#7D8CA3',
+    },
+    button: {
+      // backgroundColor: '#007bff',
+      borderRadius: 5,
+      paddingVertical: 8,
+      paddingHorizontal: 12,
+      marginTop: 10,
+    },
+    buttonText: {
+      color: '#fff',
+      fontSize: 14,
+    },
+    appointmentButton: {
+      backgroundColor: '#28a745',
+      borderRadius: 5,
+      paddingVertical: 12,
+      alignItems: 'center',
+    },
+    appointmentButtonText: {
+      color: '#fff',
+      fontSize: 16,
+    },
+    fab: {
+      position: 'absolute',
+      bottom: 30,
+      right: 30,
+      width: 60,
+      height: 60,
+      borderRadius: 30,
+      justifyContent: 'center',
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: {width: 0, height: 2},
+      shadowOpacity: 0.3,
+      shadowRadius: 5,
+      elevation: 5, // For Android shadow
+    },
+  });

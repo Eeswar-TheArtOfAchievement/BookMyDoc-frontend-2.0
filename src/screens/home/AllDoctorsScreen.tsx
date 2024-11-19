@@ -2,7 +2,7 @@ import { Alert, Button, Image, StyleSheet, TextInput, TouchableOpacity, View } f
 import React, { useEffect, useRef, useState } from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import axios from 'axios';
-import CustomHeader2 from './CustomHeader2';
+import CustomHeader2 from '../../components/CustomHeader2';
 import { FlatList } from 'react-native-gesture-handler';
 import { Text } from 'react-native-paper';
 import ipAddress from '../../../config/ipConfig';

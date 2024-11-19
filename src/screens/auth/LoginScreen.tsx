@@ -54,7 +54,7 @@ const LoginScreen = ({navigation}) => {
   return (
     <View style={styles.container}>
         <View style={styles.logo}>
-             <Image source={require('../../assets/logo.png')} style={styles.logo1}  />
+             <Image source={require('../../assets/icons/logo.png')} style={styles.logo1}  />
             <Text style={styles.bar}>BookMyDoc</Text>
         </View>
         <Text style={styles.bar1}>Welcome Back</Text>

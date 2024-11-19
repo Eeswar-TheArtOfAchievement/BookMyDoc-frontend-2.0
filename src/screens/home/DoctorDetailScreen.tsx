@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from 'react-native';
-import CustomHeader from './CustomHeader';
+import CustomHeader from '../../components/CustomHeader';
 import {Pressable, ScrollView} from 'react-native-gesture-handler';
 import axios from 'axios';
 import Toast from 'react-native-toast-message';

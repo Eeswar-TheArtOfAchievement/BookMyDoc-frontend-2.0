@@ -21,6 +21,7 @@ import axios from 'axios';
 import ipAddress from '../../../config/ipConfig';
 import {useFocusEffect} from '@react-navigation/native';
 import {useTheme} from '../../contexts/ThemeContext';
+import styles from './HomeScreen.styles';
 
 const HomeScreen = ({navigation}) => {
   const {theme, isDarkMode, toggleTheme} = useTheme();
@@ -70,7 +71,7 @@ const HomeScreen = ({navigation}) => {
     {
       id: '1',
       name: 'Cardiologist',
-      image: require('../../assets/Cardiologist.png'),
+      image: require('../../assets/images/Cardiologist.png'),
       description:
         'A cardiologist specializes in diagnosing and treating heart conditions. They handle diseases related to the heart and blood vessels.',
       conditions:
@@ -79,7 +80,7 @@ const HomeScreen = ({navigation}) => {
     {
       id: '2',
       name: 'Dermatologist',
-      image: require('../../assets/Dermatologist.png'),
+      image: require('../../assets/images/Dermatologist.png'),
       description:
         'A dermatologist is a doctor who specializes in the diagnosis and treatment of skin disorders, hair, and nail problems.',
       conditions:
@@ -88,7 +89,7 @@ const HomeScreen = ({navigation}) => {
     {
       id: '3',
       name: 'Pediatrician',
-      image: require('../../assets/Pediatrician.png'),
+      image: require('../../assets/images/Pediatrician.png'),
       description:
         'A pediatrician specializes in the care of infants, children, and adolescents. They manage physical, behavioral, and developmental concerns.',
       conditions:
@@ -97,7 +98,7 @@ const HomeScreen = ({navigation}) => {
     {
       id: '4',
       name: 'Orthopedic',
-      image: require('../../assets/Orthopedic.png'),
+      image: require('../../assets/images/Orthopedic.png'),
       description:
         'An orthopedic surgeon treats injuries and disorders of the musculoskeletal system, including bones, joints, muscles, and ligaments.',
       conditions:
@@ -106,7 +107,7 @@ const HomeScreen = ({navigation}) => {
     {
       id: '5',
       name: 'Neurologist',
-      image: require('../../assets/Neurologist.png'),
+      image: require('../../assets/images/Neurologist.png'),
       description:
         'A neurologist diagnoses and treats disorders of the brain, spinal cord, nerves, and muscles, including conditions related to the nervous system.',
       conditions:
@@ -115,7 +116,7 @@ const HomeScreen = ({navigation}) => {
     {
       id: '6',
       name: 'Oncologist',
-      image: require('../../assets/Oncologist.png'),
+      image: require('../../assets/images/Oncologist.png'),
       description:
         'An oncologist specializes in the diagnosis and treatment of cancer. They provide chemotherapy, radiation therapy, and manage the care of cancer patients.',
       conditions:
@@ -124,7 +125,7 @@ const HomeScreen = ({navigation}) => {
     {
       id: '7',
       name: 'Gastroenterologist',
-      image: require('../../assets/Gastroenterologist.png'),
+      image: require('../../assets/images/Gastroenterologist.png'),
       description:
         'A gastroenterologist treats disorders related to the digestive system, including the stomach, intestines, liver, and pancreas.',
       conditions:
@@ -133,7 +134,7 @@ const HomeScreen = ({navigation}) => {
     {
       id: '8',
       name: 'Psychiatrist',
-      image: require('../../assets/Psychiatrist.png'),
+      image: require('../../assets/images/Psychiatrist.png'),
       description:
         'A psychiatrist is a medical doctor who specializes in diagnosing and treating mental health disorders, including emotional, behavioral, and cognitive issues.',
       conditions:
@@ -142,7 +143,7 @@ const HomeScreen = ({navigation}) => {
     {
       id: '9',
       name: 'Ophthalmologist',
-      image: require('../../assets/Ophthalmologist.png'),
+      image: require('../../assets/images/Ophthalmologist.png'),
       description:
         'An ophthalmologist is a medical doctor specializing in the diagnosis and treatment of eye diseases and vision care. They also perform eye surgeries.',
       conditions:
@@ -151,7 +152,7 @@ const HomeScreen = ({navigation}) => {
     {
       id: '10',
       name: 'Endocrinologist',
-      image: require('../../assets/Endocrinologist.png'),
+      image: require('../../assets/images/Endocrinologist.png'),
       description:
         'An endocrinologist focuses on hormone-related diseases and conditions. They treat disorders of the endocrine glands such as thyroid, pancreas, and adrenal glands.',
       conditions:
@@ -452,7 +453,7 @@ const HomeScreen = ({navigation}) => {
         <View>
           <View style={styles.subText1}>
             <Image
-              source={require('../../assets/logo.png')}
+              source={require('../../assets/icons/logo.png')}
               style={styles.logo}
             />
             <Text style={[styles.headText, {color: theme.text}]}>
@@ -480,191 +481,6 @@ const HomeScreen = ({navigation}) => {
     </ScrollView>
   );
 };
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    // backgroundColor: '#F7F9FC',
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    paddingBottom: 20,
-  },
-  locationContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    marginBottom: 10,
-  },
-  swiperContainer: {
-    height: 250,
-  },
-  picker: {
-    height: 50,
-    width: 200,
-    // backgroundColor: '#f7f9fc',
-    borderRadius: 5,
-    borderColor: '#ddd',
-    borderWidth: 1,
-  },
-  slider: {
-    flex: 1,
-    borderRadius: 20,
-  },
-  grid: {
-    flex: 0,
-    flexDirection: 'row',
-    // padding: 10,
-  },
-  itemContainer: {
-    flex: 1,
-    alignItems: 'center',
-    margin: 5,
-    padding: 10,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
-    elevation: 2,
-  },
-  image1: {
-    width: 150,
-    height: 100,
-    borderRadius: 8,
-    marginBottom: 10,
-  },
-  itemText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  logo: {
-    height: 30,
-    width: 30,
-  },
-  text: {
-    fontSize: 20,
-    // color: '#7D8CA3',
-    marginBottom: 20,
-  },
 
-  footerCard: {
-    marginTop: 10,
-    marginBottom: 40,
-    backgroundColor: '#',
-  },
-  aboutContainer: {
-    marginTop: 10,
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    marginBottom: 20,
-  },
-  aboutContainer1: {
-    width: '53%',
-  },
-  banner: {
-    width: '100%',
-    height: 200,
-    borderRadius: 10,
-  },
-  heading: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginVertical: 20,
-  },
-  headText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    // color: '#2E3A47',
-  },
-  subText: {
-    fontSize: 16,
-    // color: 'black',
-  },
-  subText2: {
-    fontSize: 24,
-    color: 'black',
-  },
-  subText1: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginVertical: 10,
-    color: '#2E3A47',
-  },
-  subtitle: {
-    fontSize: 17,
-    color: '#7D8CA3',
-    marginBottom: 20,
-  },
-  doctorList: {},
-  image: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    paddingHorizontal: 10,
-    marginBottom: 10,
-  },
-  doctorCard: {
-    marginBottom: 20,
-    height: 240,
-    paddingVertical: 15,
-    // backgroundColor: '#fff',
-    borderRadius: 10,
-    marginRight: 15,
-    elevation: 3,
-    width: 155,
-    alignItems: 'center',
-    shadowOpacity: 0.25,
-    shadowRadius: 3.5,
-  },
-
-  doctorName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    // color: '#2E3A47',
-  },
-  doctorSpecialty: {
-    fontSize: 14,
-    // color: '#7D8CA3',
-  },
-  button: {
-    // backgroundColor: '#007bff',
-    borderRadius: 5,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    marginTop: 10,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 14,
-  },
-  appointmentButton: {
-    backgroundColor: '#28a745',
-    borderRadius: 5,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  appointmentButtonText: {
-    color: '#fff',
-    fontSize: 16,
-  },
-  fab: {
-    position: 'absolute',
-    bottom: 30,
-    right: 30,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 5, // For Android shadow
-  },
-});
 
 export default HomeScreen;
