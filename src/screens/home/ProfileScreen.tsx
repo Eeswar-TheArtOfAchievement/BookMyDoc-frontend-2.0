@@ -21,7 +21,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 
 import Toast from 'react-native-toast-message';
-import ipAddress from '../../../config/ipConfig';
+import ipAddress from '../../config/ipConfig';
 const ProfileScreen = ({navigation}) => {
   const {userDetails, updateUserDetails} = useUser();
   const [modalVisible, setModalVisible] = useState(false);
@@ -90,7 +90,7 @@ const ProfileScreen = ({navigation}) => {
       const token = await AsyncStorage.getItem('token');
 
       await axios.patch(
-        `http://${ipAddress}:5000/api/v1/auth/update/${userDetails.id}`,
+        `http://${ipAddress}:5000/api/v1/auth/update`,
         {
           ...tempDetails,
           dateOfBirth: formattedDate.toISOString(),

@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, {useEffect, useState} from 'react';
 import {  View,  Text,  StyleSheet,  Button,  Alert,  FlatList,  TouchableOpacity,  ActivityIndicator,  Image } from 'react-native';
 import { useDoctor } from '../../contexts/UserProvider';
-import ipAddress from '../../../config/ipConfig';
+import ipAddress from '../../config/ipConfig';
 
 const DoctorDashboard = ({navigation}) => {
     const {doctorDetails , updateDoctorDetails} = useDoctor();

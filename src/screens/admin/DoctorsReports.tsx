@@ -3,7 +3,7 @@ import { View, Text, Button, FlatList, StyleSheet, Alert, TextInput, ScrollView 
 import axios from 'axios';
 import { useAdmin } from '../../contexts/UserProvider';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import ipAddress from '../../../config/ipConfig';
+import ipAddress from '../../config/ipConfig';
 
 // Sample data types
 interface Doctor {

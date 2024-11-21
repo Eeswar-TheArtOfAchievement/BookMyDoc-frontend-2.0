@@ -21,7 +21,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DoctorsReports from '../screens/admin/DoctorsReports';
 import UserReports from '../screens/admin/UserReports';
-import ipAddress from '../../config/ipConfig';
+import ipAddress from '../config/ipConfig';
 const AdminDrawer = createDrawerNavigator();
 
 // Define a separate function for the icons

@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useNewAppointments, useUser } from '../../contexts/UserProvider';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Picker } from '@react-native-picker/picker';
-import ipAddress from '../../../config/ipConfig';
+import ipAddress from '../../config/ipConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const MyAppointmentsScreen = () => {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
-import ipAddress from '../../../config/ipConfig';
+import ipAddress from '../../config/ipConfig';
 
 const OtpScreen = ({ route, navigation }) => {
     const { email ,password, fullName, role } = route.params; // Get the email passed from SignUpScreen

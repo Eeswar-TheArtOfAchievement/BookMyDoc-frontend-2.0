@@ -18,7 +18,7 @@ import {FlatList} from 'react-native-gesture-handler';
 import Iconi from 'react-native-vector-icons/Ionicons';
 import {Picker} from '@react-native-picker/picker';
 import axios from 'axios';
-import ipAddress from '../../../config/ipConfig';
+import ipAddress from '../../config/ipConfig';
 import {useFocusEffect} from '@react-navigation/native';
 import {useTheme} from '../../contexts/ThemeContext';
 import styles from './HomeScreen.styles';

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Button, FlatList, StyleSheet, Alert, TextInput, ScrollView } from 'react-native';
 import axios from 'axios';
 import { useAdmin } from '../../contexts/UserProvider';
-import ipAddress from '../../../config/ipConfig';
+import ipAddress from '../../config/ipConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Patient {

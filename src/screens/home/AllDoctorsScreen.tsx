@@ -5,7 +5,7 @@ import axios from 'axios';
 import CustomHeader2 from '../../components/CustomHeader2';
 import { FlatList } from 'react-native-gesture-handler';
 import { Text } from 'react-native-paper';
-import ipAddress from '../../../config/ipConfig';
+import ipAddress from '../../config/ipConfig';
 const AllDoctorsScreen = ({navigation}) => {
     const [searchTerm, setSearchTerm] = useState('');
     const inputRef = useRef(null);

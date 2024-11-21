@@ -18,7 +18,7 @@ import {useAdmin} from '../../contexts/UserProvider';
 import {Picker} from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { CommonActions } from '@react-navigation/native';
-import ipAddress from '../../../config/ipConfig';
+import ipAddress from '../../config/ipConfig';
 
 const ProfileScreen = ({navigation}) => {
   const {adminDetails, updateAdminDetails} = useAdmin();
@@ -72,7 +72,7 @@ const ProfileScreen = ({navigation}) => {
       const token = await AsyncStorage.getItem('token');
 
       await axios.patch(
-        `http://${ipAddress}:5000/api/v1/auth/update/${adminDetails.id}`,
+        `http://${ipAddress}:5000/api/v1/auth/update`,
         {
           ...tempDetails,
           dateOfBirth: formattedDate.toISOString(),

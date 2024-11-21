@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert , Image, Dimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ActivityIndicator } from 'react-native';
-import ipAddress from '../../../config/ipConfig';
+import ipAddress from '../../config/ipConfig';
 
 const { width, height } = Dimensions.get('window');
 
@@ -10,10 +10,12 @@ const LoginScreen = ({navigation}) => {
   const [email, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');  // New state to hold error message
 
   const handleLogin = async () => {
     if (email && password) {
       setLoading(true);
+      setError('');
         try {
             const response = await fetch(`http://${ipAddress}:5000/api/v1/public/login`, {
                 method: 'POST',
@@ -25,7 +27,6 @@ const LoginScreen = ({navigation}) => {
             const data = await response.json();
             if (response.ok) {
               const {token ,role} = data;
-              console.log(token , role)
               // Store only the token clg
               await AsyncStorage.setItem('token',token);
               await AsyncStorage.setItem('role',role);
@@ -34,19 +35,19 @@ const LoginScreen = ({navigation}) => {
             } else if (role === 'admin') {
                 navigation.replace('AdminDrawerNav'); // Navigate to Admin Drawer
             } else {
-                navigation.replace('TabNavigator'); // Navigate to User Tab (default case)
+                navigation.replace('UserStack'); // Navigate to User Tab (default case)
             }
           } else {
-              Alert.alert('Error', data.message || 'Login failed');
+            setError(data.message || 'Login failed');
           }
         } catch (error) {
             console.error('Login error:', error);
-            Alert.alert('Error', 'Something went wrong in login route');
+            setError('Something went wrong. Please try again.');
         } finally {
             setLoading(false); // Set loading to false after the request is complete
         }
     } else {
-        Alert.alert('Error', 'Please enter both email and password.');
+        setError('Please enter both email and password.');
     }
 };
 
@@ -75,6 +76,16 @@ const LoginScreen = ({navigation}) => {
           secureTextEntry
           autoCapitalize="none"
         />
+        {/* Display the error message here */}
+        {error ? (
+          <View >
+            <Text style={styles.errorText}>{error}</Text>
+            {/* Forgot Password Link */}
+            <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword' , { email  })} style={styles.forgotPassword}>
+              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
 
        <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
     {loading ? (
@@ -174,6 +185,20 @@ flexDirection: 'row',
     alignItems: 'center',
 
 },
+forgotPassword: {
+    marginBottom: 10,
+    alignItems: 'center',
+  },
+errorText: {
+    color: 'red',
+    fontSize: 14,
+    marginBottom: 10,
+  },
+  forgotPasswordText: {
+    color: '#007BFF',
+    fontSize: 18,
+    textDecorationLine: 'underline',
+  },
 });
 
 export default LoginScreen;

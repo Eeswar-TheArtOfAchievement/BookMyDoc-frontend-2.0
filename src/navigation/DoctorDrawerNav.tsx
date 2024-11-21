@@ -10,7 +10,7 @@ import MyPatientsScreen from '../screens/doctor/MyPatientsScreen';
 import DoctorProfileScreen from '../screens/doctor/DoctorProfileScreen';
 import {DoctorProvider, useDoctor} from '../contexts/UserProvider';
 import AvailabilityScreen from '../screens/doctor/AvailabilityScreen';
-import ipAddress from '../../config/ipConfig';
+import ipAddress from '../config/ipConfig';
 const DoctorDrawer = createDrawerNavigator();
 
 // Define a separate function for the icons

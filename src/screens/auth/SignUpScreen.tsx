@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image, Dimensions , Alert , Button  } from 'react-native';
 import { RadioButton } from 'react-native-paper';
-import ipAddress from '../../../config/ipConfig';
+import ipAddress from '../../config/ipConfig';
 
 // Get screen width for responsive image
 const { width, height } = Dimensions.get('window');

@@ -8,15 +8,14 @@ import SignUpScreen from '../screens/auth/SignUpScreen';
 import OtpScreen from '../screens/auth/OtpScreen';
 import TermsConditions from '../screens/TermsConditions';
 import AboutScreen from '../screens/AboutScreen';
-import TabNavigator from './TabNavigator';
 import DoctorDrawerNav from './DoctorDrawerNav';
 import AdminDrawerNav from './AdminDrawerNav';
 import PrivacyPolicy from '../screens/PrivacyPolicy';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LoadingIndicator from '../screens/LoadingIndicator';
-import DoctorDetailScreen from '../screens/home/DoctorDetailScreen';
-import AllDoctorsScreen from '../screens/home/AllDoctorsScreen';
-import SpecializationDetail from '../screens/home/SpecializationDetail';
+import UserStack from './UserStack';
+import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
+import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 
 const Stack = createStackNavigator();
 const AuthStackNavigator = () => {
@@ -40,19 +39,10 @@ const AuthStackNavigator = () => {
         checkLoginStatus();
     }, []);
 
-    // if(isLoggedIn) {
-    //     if(userRole==='user'){
-    //         return <TabNavigator />
-    //     }else if (userRole==='doctor') {
-    //         return <DoctorDrawerNav />
-    //      } else {
-    //         return <AdminDrawerNav />
-    //         }
-    // }
 
     // Check loading state
     if (isLoggedIn === null) {
-        return <LoadingIndicator />; // Ensure LoadingIndicator component is defined
+        return <LoadingIndicator />;
     }
 
     return (
@@ -66,37 +56,25 @@ const AuthStackNavigator = () => {
             }}
             initialRouteName={
                 isLoggedIn ? (userRole ? (userRole === 'admin' ? 'AdminDrawerNav' :
-                     (userRole === 'doctor' ? 'DoctorDrawerNav' : 'TabNavigator')) : 'Login') : 'Disclosure of App Permissions'
+                     (userRole === 'doctor' ? 'DoctorDrawerNav' : 'UserStack')) : 'Login') : 'Disclosure of App Permissions'
             }
         >
-            {/* {isLoggedIn ? (
-                <>
-                    {userRole === 'admin' ? (
 
-                    ) : userRole === 'doctor' ? (
-                        <Stack.Screen name="DoctorDrawerNav" component={DoctorDrawerNav} options={{ headerShown: false }} />
-                    ) : (
-                        <Stack.Screen name="TabNavigator" component={TabNavigator} options={{ headerShown: false }}  />
-                    )}
-                </>
-            ) :
-            <>
-            </> */}
             <Stack.Screen name="Disclosure of App Permissions" component={DisclosureScreen} />
             <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false }} />
-            {/* } */}
             <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
             <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+            <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
             <Stack.Screen name="OtpScreen" component={OtpScreen} />
-            <Stack.Screen name="AdminDrawerNav" component={AdminDrawerNav} options={{ headerShown: false }}  />
-            <Stack.Screen name="DoctorDrawerNav" component={DoctorDrawerNav} options={{ headerShown: false }} />
-            <Stack.Screen name="TabNavigator" component={TabNavigator} options={{ headerShown: false }}  />
             <Stack.Screen name="TermsConditions" component={TermsConditions} />
             <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
             <Stack.Screen name="About" component={AboutScreen} />
-            <Stack.Screen name="DoctorDetail" component={DoctorDetailScreen} />
-            <Stack.Screen name="Find Doctors" component={AllDoctorsScreen} />
-            <Stack.Screen name="SpecializationDetail" component={SpecializationDetail} />
+
+            <Stack.Screen name="UserStack" component={UserStack} options={{ headerShown: false }}  />
+            <Stack.Screen name="AdminDrawerNav" component={AdminDrawerNav} options={{ headerShown: false }}  />
+            <Stack.Screen name="DoctorDrawerNav" component={DoctorDrawerNav} options={{ headerShown: false }} />
+
         </Stack.Navigator>
     );
 };

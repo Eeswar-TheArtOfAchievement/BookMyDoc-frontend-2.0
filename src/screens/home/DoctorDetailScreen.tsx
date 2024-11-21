@@ -17,7 +17,7 @@ import {Calendar} from 'react-native-calendars';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useUser } from '../../contexts/UserProvider';
-import ipAddress from '../../../config/ipConfig';
+import ipAddress from '../../config/ipConfig';
 
 
 const DoctorDetailScreen = ({route, navigation}) => {

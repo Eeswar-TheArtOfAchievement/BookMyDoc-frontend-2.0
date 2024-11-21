@@ -8,7 +8,7 @@ import { ActivityIndicator } from 'react-native';
 
 import axios from 'axios';
 import Toast from 'react-native-toast-message';
-import ipAddress from '../../../config/ipConfig';
+import ipAddress from '../../config/ipConfig';
 import BookButton from '../../components/BookButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const BookAppointmentScreen = ({ route, navigation }) => {
